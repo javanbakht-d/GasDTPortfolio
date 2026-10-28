@@ -7,6 +7,11 @@ export async function register() {
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
   if (process.env.NEXT_PHASE === "phase-production-build") return;
 
+  // در استقرار Serverless (مثل Vercel) فرایند دائمی وجود ندارد؛ تیک از طریق
+  // سرویس cron بیرونی روی /api/system/cron-tick با CRON_SECRET انجام می‌شود
+  // (راهنما: docs/deploy-guide.md)
+  if (process.env.VERCEL === "1") return;
+
   const g = globalThis as unknown as { __nigcSchedulerStarted?: boolean };
   if (g.__nigcSchedulerStarted) return;
   g.__nigcSchedulerStarted = true;

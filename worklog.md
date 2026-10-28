@@ -248,3 +248,25 @@ Stage Summary:
 - تاریخچه کامل سندباکس لوکال در برنچ archive/local-sandbox-history حفظ شده و منتشر نشده است
 - هیچ توکن/ secret در گیت، remote URL یا فایلی ذخیره نشد
 - اپ زنده در gdtportfolio.space-z.ai دست‌نخورده و سالم است
+
+---
+Task ID: cloud-deploy-prep
+Agent: Z.ai Code (main)
+Task: آماده‌سازی ریپو برای استقرار رایگان ابری (Vercel + Neon + cron-job.org) + راهنمای گام‌به‌گام
+
+Work Log:
+- بررسی معماری: tick در runFullTick() جداست، AI با dynamic import و گیت ai.enabled، seedها Prisma خالص، بدون fs در src
+- ساخت prisma/schema.postgres.prisma (کپی با provider postgresql) — هر دو اسکیما validate شدند
+- تولید DDL با prisma migrate diff (67 دستور) و تبدیل به src/lib/postgres-ddl.ts (آرایه آماده اجرا)
+- ریفکتور: src/lib/seed-core.ts و src/lib/seed-upgrade-core.ts (کلاینت تزریقی) + scripts/seed*.ts به wrapper نازک تبدیل شد
+- مسیر /api/system/bootstrap (GET/POST با BOOTSTRAP_TOKEN): اجرای idempotent DDL + seed کامل + تنظیم ai.enabled=false روی Vercel + بازگرداندن رمزهای اولیه فقط یک‌بار
+- مسیر /api/system/cron-tick (GET/POST با CRON_SECRET): اجرای runFullTick + قفل درون‌پردازشی + مقایسه امن توکن
+- instrumentation.ts: روی VERCEL=1 حلقه درون‌پردازشی غیرفعال (تیک با cron بیرونی)
+- vercel.json (buildCommand با اسکیمای pg) + next.config.ts (standalone فقط خارج Vercel) + .env.example کامل + README.md فارسی
+- docs/deploy-guide.md: راهنمای ۸ گامی کامل فارسی (Neon → Vercel → bootstrap → cron-job.org → صحت‌سنجی → نگهداری → عیب‌یابی)
+- آزمون: tsc پاک (سورس)، eslint پاک، bootstrap/cron-tick بدون توکن → 403 JSON فارسی، صفحه اصلی 200، رندر مرورگری سالم، اسکجولر لوکال فعال
+
+Stage Summary:
+- ریپو آماده Import در Vercel است؛ راه‌اندازی اولیه بدون هیچ ابزار لوکال فقط با یک URL انجام می‌شود
+- اپ زنده سندباکس (SQLite) دست‌نخورده ماند — تغییرات صرفاً افزودنی/شرطی است
+- محدودیت‌های شفاف: AI روی ابر غیرفعال، ایمیل فقط صف، مستند در deploy-guide
