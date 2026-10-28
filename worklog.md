@@ -225,3 +225,26 @@ Work Log:
 Stage Summary:
 - هر ۸ آزمون پذیرش قبول؛ یک نقص امنیتی P0 در همین چرخه یافت و رفع شد
 - وضعیت نهایی: پیاده‌سازی‌شده و آزموده‌شده در محیط توسعه — انتشار عملیاتی نیازمند SMTP/پشتیبان دوره‌ای/تصمیم دبیرخانه (مستند در release-notes)
+
+---
+Task ID: github-push
+Agent: Z.ai Code (main)
+Task: کپی کامل برنامه به ریپوی GitHub جدید کاربر (javanbakht-d/GasDTPortfolio) بدون آسیب به اپ زنده
+
+Work Log:
+- بررسی محیط: گیت لوکال موجود با ۱۰۳ فایل تغییرکرده (کار ارتقا)، بدون ریموت و بدون credential
+- پاک‌سازی امنیتی: خارج‌سازی .env (حاوی DATABASE_URL)، backups/ (tar آن شامل .env بود) و tool-results/ از گیت + افزودن به .gitignore + ساخت .env.example
+- کامیت f1b197f: ثبت کامل کار ارتقا در تاریخچه لوکال
+- دریافت PAT از کاربر؛ بررسی ریپوی مقصد: موجود، عمومی، خالی، توکن با مجوز push
+- ساخت برنچ archive/local-sandbox-history برای حفظ تاریخچه سندباکس (کامیت‌های UUID + آرتیفکت‌ها) — ارسال نشد
+- ساخت کامیت تمیز orphan (1927232) با ۱۹۳ فایل، نویسنده: Davood Javanbakht <javanbakht-d@users.noreply.github.com>
+- Push موفق main → origin (GitHub) و تأیید با ls-remote
+- تلاش برای تنظیم description/homepage/topics با API: ناموفق (توکن مجوز Administration ندارد) — به کاربر اطلاع داده شد
+- سلامت اپ زنده تأیید شد: HTTP 200 روی localhost:3000، اسکجولر فعال
+- unset توکن و اطمینان از عدم ذخیره آن در config/credentials
+
+Stage Summary:
+- ریپوی GitHub https://github.com/javanbakht-d/GasDTPortfolio شامل کامل برنامه در یک کامیت تمیز (1927232) است
+- تاریخچه کامل سندباکس لوکال در برنچ archive/local-sandbox-history حفظ شده و منتشر نشده است
+- هیچ توکن/ secret در گیت، remote URL یا فایلی ذخیره نشد
+- اپ زنده در gdtportfolio.space-z.ai دست‌نخورده و سالم است
