@@ -1,0 +1,578 @@
+// NIGC-DTG — سامانه یکپارچه راهبری تحول دیجیتال و حکمرانی هوشمند شرکت ملی گاز ایران
+// Prisma schema — SQLite (sandbox) — PostgreSQL-ready design
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────── هویت و دسترسی ───────────────────────────
+
+model User {
+  id           String    @id @default(cuid())
+  username     String    @unique
+  fullName     String
+  email        String?
+  phone        String?
+  passwordHash String
+  orgUnitId    String?
+  title        String? // عنوان سازمانی
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  orgUnit       OrgUnit?        @relation(fields: [orgUnitId], references: [id])
+  roles         UserRole[]
+  sessions      Session[]
+  actionUpdates ActionUpdate[]
+  notifications Notification[]
+  auditLogs     AuditLog[]
+
+  assignedActions Action[] @relation("ActionResponsible")
+}
+
+model Role {
+  id          String  @id @default(cuid())
+  key         String  @unique // SYSTEM_ADMIN, SECRETARIAT_ADMIN, ...
+  name        String // نام فارسی
+  description String?
+  permissions String // JSON array of permission keys
+  isSystem    Boolean @default(false)
+  isActive    Boolean @default(true)
+
+  users UserRole[]
+}
+
+model UserRole {
+  id        String   @id @default(cuid())
+  userId    String
+  roleId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+}
+
+model OrgUnit {
+  id             String    @id @default(cuid())
+  code           String    @unique
+  name           String
+  type           String    @default("DIRECTORATE") // HQ_DIRECTORATE | SUBSIDIARY | COMMITTEE
+  parentId       String?
+  managerName    String?
+  dtLiaison      String? // رابط تحول دیجیتال
+  dataOwner      String? // مالک داده
+  dataCustodian  String? // متولی داده
+  liaisonReported Boolean  @default(false) // معرفی رابط ثبت شده؟
+  dataOwnerReported Boolean @default(false)
+  internalBriefingDone Boolean @default(false) // ابلاغ داخلی و جلسه توجیهی
+  statusReportSubmitted  Boolean @default(false) // وضعیت موجود ارسال شده؟
+  maturitySubmitted     Boolean @default(false) // خودارزیابی بلوغ ارسال شده؟
+  projectsSubmitted     Boolean @default(false) // فهرست پروژه‌ها ارسال شده؟
+  isActive     Boolean   @default(true)
+  validFrom    DateTime  @default(now())
+  validTo      DateTime?
+  sortOrder    Int       @default(0)
+
+  parent   OrgUnit?   @relation("OrgUnitTree", fields: [parentId], references: [id])
+  children OrgUnit[]  @relation("OrgUnitTree")
+  users    User[]
+
+  actions        Action[]
+  projects       Project[]
+  documents      Document[]
+  dataDomains    DataDomain[]
+  aiApplications AiApplication[]
+  digitalEntries DigitalStatusEntry[]
+}
+
+model Session {
+  id        String   @id @default(cuid()) // token
+  userId    String
+  expiresAt DateTime
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─────────────────────────── پیکربندی برنامه ───────────────────────────
+
+model Setting {
+  key         String   @id
+  value       String
+  valueType   String   @default("string") // string | number | boolean | date
+  category    String   @default("general")
+  description String?
+  updatedById String?
+  updatedAt   DateTime @updatedAt
+}
+
+model BaselineChange {
+  id          String   @id @default(cuid())
+  oldDate     DateTime?
+  newDate     DateTime
+  reason      String
+  approvedBy  String
+  createdById String?
+  createdAt   DateTime @default(now())
+}
+
+// ─────────────────────────── اقدامات و تعهدات (۳۷ گام) ───────────────────────────
+
+model Action {
+  id        String  @id @default(cuid())
+  refStep   Int     @unique // شماره گام مرجع ۱..۳۷ — قابل ردیابی به سند
+  code      String  @unique // NIGC-ACT-01
+  title     String
+  description String
+  groupKey  String // IMMEDIATE(۰-۱۰) | PHASE_30 | PHASE_60 | PHASE_90 | CONTINUOUS
+  actionType String @default("ROUTINE") // ROUTINE | RESOLUTION | CONTINUOUS | CRITICAL | SPECIAL
+  sourceRef String? // ارجاع به سند ابلاغی (فصل/جدول)
+
+  // زمان‌بندی نسبی از روز صفر
+  dueStartDay Int? // شروع بازه مهلت (روز)
+  dueEndDay   Int? // پایان بازه مهلت (روز) — مبنای سررسید
+  cycleKey    String? // برای اقدامات مستمر: MONTHLY | QUARTERLY | SEMIANNUAL | CONTINUOUS
+  dueDate     DateTime? // سررسید محاسبه‌شده از تاریخ مبنا
+  dueDateOverridden Boolean @default(false)
+
+  deliverable     String? // خروجی قابل تحویل
+  acceptanceCriteria String?
+  dependencies    String? // JSON array of refStep numbers
+
+  responsibleUnitId String? // واحد مسئول اجرا
+  followUpOwnerId   String? // کاربر مسئول پیگیری
+  approverRoleKey   String? // نقش مجاز تأیید
+
+  status    String  @default("READY")
+  progress  Int     @default(0)
+  priority  String  @default("MEDIUM") // LOW | MEDIUM | HIGH | CRITICAL
+
+  delayReason      String?
+  remedialAction   String?
+  remedialOwnerId  String?
+  remedialDueDate  DateTime?
+  riskNote         String?
+
+  actualEndDate DateTime?
+  nextFollowUpAt DateTime? // زمان پیگیری بعدی (پیگیری نظام‌مند)
+  lastFollowUpAt DateTime? // آخرین پیگیری انجام‌شده
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  responsibleUnit OrgUnit?       @relation(fields: [responsibleUnitId], references: [id])
+  followUpOwner   User?          @relation("ActionResponsible", fields: [followUpOwnerId], references: [id])
+  updates         ActionUpdate[]
+}
+
+model ActionUpdate {
+  id         String   @id @default(cuid())
+  actionId   String
+  userId     String?
+  type       String // STATUS_CHANGE | COMMENT | PROGRESS | REMINDER | DELAY_REPORT | REMEDIAL | DECISION
+  fromStatus String?
+  toStatus   String?
+  progress   Int?
+  content    String
+  createdAt  DateTime @default(now())
+
+  action Action @relation(fields: [actionId], references: [id], onDelete: Cascade)
+  user   User?  @relation(fields: [userId], references: [id])
+}
+
+// ─────────────────────────── اسناد و مصوبات ───────────────────────────
+
+model Document {
+  id        String  @id @default(cuid())
+  code      String  @unique // NIGC-DOC-...
+  title     String
+  docType   String // CHARTER | DIRECTIVE | FRAMEWORK | MECHANISM | FORM | AGREEMENT | MINUTES | REPORT | BUDGET | REFERENCE_PLAN
+  status    String  @default("DRAFT") // DRAFT | IN_REVIEW | APPROVED | ISSUED | SUPERSEDED | ARCHIVED
+  version   String  @default("۰٫۱")
+  classification String @default("INTERNAL") // PUBLIC | INTERNAL | CONFIDENTIAL | SECRET
+  ownerUnitId String?
+  ownerUserId String?
+  description String?
+  sourceRef String?
+  relatedRefStep Int? // گام مرجع مربوط (۲،۵،۱۸،۲۰...)
+  approvalDueDay Int? // مهلت مصوبه از روز صفر (مثلاً ۶۰)
+  needsUpload Boolean @default(false) // نسخه رسمی نیازمند بارگذاری
+  fileUrl   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ownerUnit OrgUnit?           @relation(fields: [ownerUnitId], references: [id])
+  versions  DocumentVersion[]
+}
+
+model DocumentVersion {
+  id         String   @id @default(cuid())
+  documentId String
+  version    String
+  summary    String?
+  changeNote String?
+  status     String
+  createdById String?
+  createdAt  DateTime @default(now())
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+}
+
+// ─────────────────────────── سبد پروژه‌های تحول دیجیتال ───────────────────────────
+
+model Project {
+  id        String @id @default(cuid())
+  code      String @unique // NIGC-PRJ-...
+  title     String
+  trackKey  String @default("UNIT") // DRIVER | UNIT | PROPOSED
+  driverKey String? // SMART_METERS | BSS_PLATFORM | DT_PORTFOLIO
+  sourceRef String?
+  refStep   Int? // گام ۱۵ ثبت پیشران‌ها
+
+  proposingUnitId String?
+  businessOwner   String?
+  projectManager  String?
+  problem         String?
+  goals           String?
+  scope           String?
+  deliverables    String?
+  timeline        String?
+  milestones      String?
+  budgetEstimate  String?
+  resources       String?
+  dependencies    String?
+  dataReadiness   String? // LOW | MEDIUM | HIGH + توضیح
+  securityNotes   String?
+  risks           String?
+  assumptions     String?
+  successMetrics  String?
+  benefitBaseline String?
+  benefitTarget   String?
+  benefitActual   String?
+
+  status String @default("PROPOSED") // PROPOSED | SCREENING | INFO_COMPLETE | SCORED | RECOMMENDED | APPROVED | REJECTED | PILOT | EVALUATING | GATE_DECISION | SCALING | STOPPED
+  waveNumber Int? // موج تصویب
+  approvedAt DateTime?
+  scoreTotal Int? // مجموع امتیاز نهایی
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  proposingUnit OrgUnit?       @relation(fields: [proposingUnitId], references: [id])
+  scores        ProjectScore[]
+}
+
+model ProjectScore {
+  id        String   @id @default(cuid())
+  projectId String
+  criterion String // VALUE(۴۰) | DATA_READINESS(۲۰) | RISK_SECURITY(۲۰) | FEASIBILITY(۲۰)
+  maxScore  Int
+  score     Int
+  rationale String?
+  evidence  String?
+  assessor  String?
+  modelVersion String @default("v1.0-سند-ابلاغی")
+  assessedAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, criterion])
+}
+
+// ─────────────────────────── حاکمیت داده ───────────────────────────
+
+model DataDomain {
+  id        String  @id @default(cuid())
+  name      String
+  code      String  @unique
+  description String?
+  ownerUnitId String?
+  dataOwnerName  String?
+  dataCustodianName String?
+  systems   String? // سامانه‌ها/پایگاه‌های مرتبط
+  classification String @default("INTERNAL")
+  qualityStatus String? // GOOD | NEEDS_IMPROVEMENT | POOR
+  maturityLevel Int? // ۱-۵ بلوغ حاکمیت داده
+  status    String  @default("ACTIVE")
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ownerUnit OrgUnit? @relation(fields: [ownerUnitId], references: [id])
+}
+
+model DigitalStatusEntry {
+  id          String  @id @default(cuid())
+  orgUnitId   String
+  entryType   String // INFORMATION_SYSTEM | DATABASE | AI_APPLICATION
+  name        String
+  description String?
+  classification String @default("INTERNAL")
+  purpose     String?
+  status      String  @default("SUBMITTED") // SUBMITTED | VALIDATED | NEEDS_INFO
+  validationNote String?
+  aiAppId     String? // در صورت ثبت در دفتر هوش مصنوعی
+  submittedAt DateTime @default(now())
+
+  orgUnit OrgUnit @relation(fields: [orgUnitId], references: [id])
+}
+
+// ─────────────────────────── دفتر ثبت کاربردهای هوش مصنوعی ───────────────────────────
+
+model AiApplication {
+  id        String  @id @default(cuid())
+  code      String  @unique // NIGC-AI-...
+  title     String
+  ownerUnitId String?
+  businessOwner String?
+  problem   String?
+  useType   String? // دستیار هوشمند | تحلیل داده | بینایی ماشین | پردازش زبان | خودکارسازی | سایر
+  businessProcess String?
+  status    String  @default("PROPOSED") // PROPOSED | EVALUATING | PILOT | APPROVED | OPERATIONAL | STOPPED | RETIRED
+  providerModel String?
+  inputData String?
+  outputData String?
+  dataSources String?
+  classification String @default("INTERNAL")
+  riskLevel String  @default("MEDIUM") // LOW | MEDIUM | HIGH | CRITICAL
+  riskAssessmentMethod String?
+  humanOversight String?
+  constraints String?
+  acceptanceCriteria String?
+  successMetrics String?
+  evaluationResults String?
+  authorizationDocs String?
+  isRegisteredForOperation Boolean @default(false) // مجوز بهره‌برداری صادر شده؟
+  lastReviewAt  DateTime?
+  reviewResponsible String?
+  sourceEntryId String? // از وضعیت موجود واحدها
+  refStep   Int? // گام ۱۳ راه‌اندازی دفتر
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ownerUnit OrgUnit? @relation(fields: [ownerUnitId], references: [id])
+}
+
+// ─────────────────────────── شاخص‌ها ───────────────────────────
+
+model Kpi {
+  id        String  @id @default(cuid())
+  code      String  @unique // KPI-1..8
+  name      String
+  definition String?
+  formula   String?
+  unit      String?
+  dataSource String?
+  owner     String?
+  baseline  String? // خط مبنا — تا تصویب خالی می‌ماند
+  target    String?
+  reportingCycle String? // MONTHLY | QUARTERLY | SEMIANNUAL | ANNUAL
+  dataQuality String? // اعتبار داده
+  needsDefinition Boolean @default(false) // نیازمند تعیین تعریف/خط مبنا
+  sourceRef String? // شاخص n جدول ۳ سند ابلاغی
+  lastUpdatedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  measurements KpiMeasurement[]
+}
+
+model KpiMeasurement {
+  id        String   @id @default(cuid())
+  kpiId     String
+  period    String // ۱۴۰۵-۰۸ ...
+  value     String
+  note      String?
+  recordedById String?
+  recordedAt DateTime @default(now())
+
+  kpi Kpi @relation(fields: [kpiId], references: [id], onDelete: Cascade)
+}
+
+// ─────────────────────────── ریسک، انحراف ───────────────────────────
+
+model Risk {
+  id        String  @id @default(cuid())
+  code      String  @unique
+  title     String
+  category  String // SCHEDULE | BUDGET | DATA | TECHNOLOGY | ORGANIZATIONAL | EXTERNAL
+  relatedType String? // ACTION | PROJECT | DOCUMENT | GENERAL
+  relatedId String?
+  relatedTitle String?
+  probability Int    @default(3) // ۱-۵
+  impact    Int      @default(3) // ۱-۵
+  owner     String?
+  preventiveAction String?
+  responsePlan String?
+  dueDate   DateTime?
+  status    String   @default("OPEN") // OPEN | MONITORING | MITIGATED | CLOSED
+  sourceRef String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Deviation {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  relatedType String // ACTION | PROJECT | REPORT
+  relatedId String
+  relatedTitle String
+  cause     String
+  responsible String?
+  severity  String   @default("MEDIUM") // LOW | MEDIUM | HIGH | CRITICAL
+  remedialAction String?
+  remedialOwnerId String?
+  remedialDueDate DateTime?
+  status    String   @default("OPEN") // OPEN | REMEDIAL_IN_PROGRESS | RESOLVED | CLOSED
+  detectedAt DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─────────────────────────── جلسات و مصوبات ───────────────────────────
+
+model Meeting {
+  id        String   @id @default(cuid())
+  number    Int?
+  title     String
+  meetingType String @default("STEERING") // STEERING | WORKING
+  scheduledAt DateTime?
+  heldAt    DateTime?
+  agenda    String? // JSON array
+  attendees String?
+  status    String   @default("SCHEDULED") // SCHEDULED | HELD | CANCELED
+  minutesSummary String?
+  refStep   Int? // گام ۱۰ نخستین جلسه
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  decisions Decision[]
+}
+
+model Decision {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  meetingId String?
+  content   String
+  responsible String?
+  dueDate   DateTime?
+  followUpStatus String @default("PENDING") // PENDING | IN_PROGRESS | DONE | OVERDUE
+  relatedActionRefStep Int?
+  relatedProjectId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  meeting Meeting? @relation(fields: [meetingId], references: [id])
+}
+
+// ─────────────────────────── بودجه و منابع ───────────────────────────
+
+model BudgetItem {
+  id        String  @id @default(cuid())
+  year      Int     @default(1406)
+  title     String
+  category  String // HARDWARE | SOFTWARE | SERVICES | TRAINING | OTHER
+  amountEstimate String? // برآورد — تا مستندسازی رسمی متنی
+  unit      String?
+  status    String  @default("DRAFT") // DRAFT | SUBMITTED | CONFIRMED
+  documentRef String?
+  refStep   Int? // گام ۷ و ۲۹
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─────────────────────────── گزارش‌ها ───────────────────────────
+
+model Report {
+  id        String  @id @default(cuid())
+  code      String  @unique
+  title     String
+  reportType String // MONTHLY | QUARTERLY | 90DAY | ANNUAL
+  period    String?
+  status    String  @default("DRAFT") // DRAFT | FINAL | SUBMITTED
+  summary   String?
+  content   String?
+  refStep   Int? // گام ۲۸، ۳۰، ۳۱...
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─────────────────────────── اعلان‌ها و ممیزی ───────────────────────────
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String // ASSIGNMENT | DEADLINE_NEAR | OVERDUE | STATUS_CHANGE | REVIEW_REQUEST | RESOLUTION | RISK_ALERT | REPORT_READY | DECISION_NEEDED | FOLLOWUP | DIGEST_MORNING | DIGEST_EOD | DIGEST_WEEKLY | SCHEDULER_ALERT
+  title     String
+  body      String?
+  relatedType String?
+  relatedId String?
+  severity  String   @default("NORMAL") // NORMAL | IMPORTANT | CRITICAL — مبنای رفع سکوت و تجمیع
+  reason    String? // چرا این اعلان ارسال شد (شفافیت هشدار)
+  actionHint String? // اقدام پیشنهادی
+  dedupeKey String?  @unique // کلید یکتای رویداد — جلوگیری از ارسال تکراری
+  channel   String   @default("IN_APP") // IN_APP | EMAIL
+  deliveryStatus String @default("DELIVERED") // DELIVERED | PENDING | FAILED
+  scheduledFor DateTime?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ───────────────── موتور یادآوری و زمان‌بندی ─────────────────
+
+model SchedulerRun {
+  id         String   @id @default(cuid())
+  jobKey     String // REMINDER_TICK | MORNING_DIGEST | EOD_DIGEST | WEEKLY_DIGEST | CLEANUP
+  startedAt  DateTime @default(now())
+  finishedAt DateTime?
+  status     String   @default("RUNNING") // RUNNING | SUCCESS | PARTIAL | FAILED
+  processed  Int      @default(0)
+  created    Int      @default(0)
+  skipped    Int      @default(0)
+  failed     Int      @default(0)
+  error      String?
+  durationMs Int?
+}
+
+model EmailOutbox {
+  id        String   @id @default(cuid())
+  dedupeKey String   @unique
+  toUserId  String?
+  toEmail   String
+  subject   String
+  body      String
+  status    String   @default("PENDING") // PENDING | SENT | FAILED | BLOCKED
+  blockedReason String? // مثلاً: پیکربندی SMTP انجام نشده — ارسال جعل نمی‌شود
+  error     String?
+  attempts  Int      @default(0)
+  relatedType String?
+  relatedId String?
+  createdAt DateTime @default(now())
+  sentAt    DateTime?
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  username  String?
+  action    String // LOGIN | LOGOUT | LOGIN_FAILED | CREATE | UPDATE | DELETE | STATUS_CHANGE | APPROVE | SETTING_CHANGE | PERMISSION_CHANGE | EXPORT | AI_QUERY | SCHEDULER_RUN | FOLLOWUP
+  entityType String?
+  entityId  String?
+  details   String? // JSON — بدون اطلاعات حساس
+  ip        String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+}
