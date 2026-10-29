@@ -337,3 +337,18 @@ Work Log:
 Stage Summary:
 - اصل «هر کاربر فقط داده‌های حوزه وظایف خودش» هم در API و هم در UI اعمال شد
 - ساختار سازمانی دقیقاً مطابق توضیحات رسمی مدیر (۱۴ مدیریت، امور مستقل، ستادی، استانی، پالایش، مناطق)
+
+---
+Task ID: github-push-2
+Agent: Z.ai Code (main)
+Task: Push RBAC + org structure work to GitHub with new PAT
+
+Work Log:
+- اعتبارسنجی PAT جدید (Bearer, 200) — بدون ذخیره در هیچ فایلی
+- پاک‌سازی ۲ نشست آزمایشی مانده، commit پایایی db (8a3ce88)
+- push موفق main: e9e3553..8a3ce88 (شامل operational UI, RBAC scope, org structure ۷۷ واحد)
+- تأیید HEAD ریموت = 8a3ce88؛ token متغیر محیطی پس از push unset شد
+
+Stage Summary:
+- ریپو https://github.com/javanbakht-d/GasDTPortfolio کاملاً به‌روز است — آماده Import در Vercel
+- گام بعدی: اجرای docs/deploy-guide.md (Neon → Vercel → cron-job.org)
