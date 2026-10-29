@@ -16,6 +16,7 @@ import { MeetingsModule } from "@/components/app/modules/meetings";
 import { BudgetModule } from "@/components/app/modules/budget";
 import { ReportsModule } from "@/components/app/modules/reports";
 import { KnowledgeModule } from "@/components/app/modules/knowledge";
+import { GuideModule } from "@/components/app/modules/guide";
 import { UsersModule } from "@/components/app/modules/users";
 import { SettingsModule } from "@/components/app/modules/settings";
 
@@ -38,6 +39,7 @@ export function ModuleRouter() {
     case "budget": return <BudgetModule />;
     case "reports": return <ReportsModule />;
     case "knowledge": return <KnowledgeModule />;
+    case "guide": return <GuideModule />;
     case "users": return <UsersModule />;
     case "settings": return <SettingsModule />;
     default: return <MyDeskModule />;

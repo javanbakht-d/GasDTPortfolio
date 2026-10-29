@@ -4,7 +4,7 @@ import { create } from "zustand";
 export type ModuleKey =
   | "my-desk" | "dashboard" | "actions" | "calendar" | "organization" | "documents"
   | "portfolio" | "governance" | "ai-registry" | "kpis" | "risks" | "meetings"
-  | "budget" | "reports" | "knowledge" | "ai-assistant" | "users" | "settings";
+  | "budget" | "reports" | "knowledge" | "ai-assistant" | "users" | "settings" | "guide";
 
 export type SessionUser = {
   id: string;

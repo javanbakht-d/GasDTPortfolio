@@ -20,7 +20,7 @@ import {
   LayoutDashboard, ListChecks, CalendarRange, Building2, FileText, Briefcase,
   Database, Bot, Gauge, ShieldAlert, Gavel, Wallet, FileBarChart2, BookOpen,
   Users, Settings, Bell, PanelRightClose, PanelRightOpen, LogOut,
-  UserCircle, Sparkles, Search, ChevronLeft, Home, Info,
+  UserCircle, Sparkles, Search, ChevronLeft, Home, Info, CircleHelp,
 } from "lucide-react";
 
 type NavItem = { key: ModuleKey; label: string; icon: React.ElementType; perm?: string; group: string };
@@ -41,6 +41,7 @@ const NAV: NavItem[] = [
   { key: "organization", label: "سازمان‌ها و واحدها", icon: Building2, perm: "org:view", group: "پشتیبانی" },
   { key: "reports", label: "گزارش‌ها و تحلیل‌های هوشمند", icon: FileBarChart2, perm: "reports:view", group: "پشتیبانی" },
   { key: "knowledge", label: "مرکز دانش و پشتیبانی", icon: BookOpen, perm: "knowledge:view", group: "پشتیبانی" },
+  { key: "guide", label: "راهنمای سامانه", icon: CircleHelp, group: "پشتیبانی" },
   { key: "users", label: "مدیریت کاربران و دسترسی‌ها", icon: Users, perm: "users:view", group: "راهبری سامانه" },
   { key: "settings", label: "تنظیمات و راهبری سامانه", icon: Settings, perm: "settings:manage", group: "راهبری سامانه" },
 ];
@@ -279,6 +280,22 @@ export function Shell() {
               </div>
             )}
 
+            {/* راهنمای سامانه — در دسترس همه نقش‌ها */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setModule("guide")}
+                  aria-label="راهنمای سامانه"
+                  className={cn("shrink-0", activeModule === "guide" && "bg-muted")}
+                >
+                  <CircleHelp className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>راهنمای سامانه — راهنمای گام‌به‌گام همه بخش‌ها</TooltipContent>
+            </Tooltip>
+
             {/* تعویض تم روشن/تاریک */}
             <ThemeToggle />
 
@@ -347,6 +364,9 @@ export function Shell() {
                 <DropdownMenuItem onClick={() => setModule("my-desk")}>
                   <Home className="h-4 w-4 ml-2" /> میزکار روزانه
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setModule("guide")}>
+                  <CircleHelp className="h-4 w-4 ml-2" /> راهنمای سامانه
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setAboutOpen(true)}>
                   <Info className="h-4 w-4 ml-2" /> درباره سامانه و طراح
                 </DropdownMenuItem>
@@ -366,6 +386,7 @@ export function Shell() {
           <footer className="mt-auto bg-card border-t py-2.5 px-6 flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted-foreground">
             <div>سامانه یکپارچه راهبری تحول دیجیتال و حکمرانی هوشمند — شرکت ملی گاز ایران (NIGC-DTG)</div>
             <div className="flex items-center gap-3">
+              <button onClick={() => setModule("guide")} className="hover:text-foreground underline-offset-2 hover:underline">راهنمای سامانه</button>
               <button onClick={() => setAboutOpen(true)} className="hover:text-foreground underline-offset-2 hover:underline">درباره سامانه</button>
               <span>فعالیت‌ها در سوابق ممیزی ثبت می‌شود · منطقه زمانی: تهران (Asia/Tehran)</span>
             </div>
