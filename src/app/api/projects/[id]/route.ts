@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
-import { requirePermission, json, handleApiError, audit, fail } from "@/lib/api";
+import { requirePermission, json, handleApiError, audit, fail, isGlobalViewer } from "@/lib/api";
 
 const PROJECT_FLOW: Record<string, string[]> = {
   PROPOSED: ["SCREENING", "REJECTED"],
@@ -19,10 +19,17 @@ const PROJECT_FLOW: Record<string, string[]> = {
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requirePermission(req, "projects:view");
+    const user = await requirePermission(req, "projects:view");
     const { id } = await params;
     const project = await db.project.findUnique({ where: { id }, include: { proposingUnit: { select: { name: true } }, scores: { orderBy: { criterion: "asc" } } } });
     if (!project) return fail(404, "پروژه یافت نشد.", "NOT_FOUND");
+
+    // محدودسازی بین‌واحدی — پروژه‌های واحد خود + پیشران‌های برنامه ابلاغی (نقش‌های دبیرخانه: کل سبد)
+    const inScope = isGlobalViewer(user)
+      || project.trackKey === "DRIVER"
+      || (user.orgUnitId != null && project.proposingUnitId === user.orgUnitId);
+    if (!inScope) return fail(403, "دسترسی به پروژه‌های واحد دیگر مجاز نیست.", "FORBIDDEN");
+
     return json({ project, allowedTransitions: PROJECT_FLOW[project.status] ?? [] });
   } catch (e) {
     return handleApiError(e);

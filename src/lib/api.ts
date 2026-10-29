@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthUser, type AuthUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { GLOBAL_VIEW_ROLES } from "@/lib/constants";
 
 // ───────────── کنترل دسترسی سمت سرور (RBAC) ─────────────
 // قاعده: پیش‌فرض رد — مجوز فقط با تخصیص صریح. مخفی‌بودن منو کافی نیست.
@@ -12,6 +13,23 @@ export function can(user: AuthUser | null, permission: string): boolean {
 
 export function canAny(user: AuthUser | null, permissions: string[]): boolean {
   return permissions.some((p) => can(user, p));
+}
+
+/**
+ * دید سراسری — نقش‌های دبیرخانه/شورا/حسابرس که داده‌های کل برنامه را می‌بینند.
+ * سایر نقش‌ها فقط داده‌های واحد سازمانی خود (یا اقدامات محول‌شده شخصی) را می‌بینند.
+ */
+export function isGlobalViewer(user: AuthUser | null): boolean {
+  if (!user) return false;
+  return user.roles.some((r) => GLOBAL_VIEW_ROLES.includes(r.key));
+}
+
+/** فیلتر محدوده اقدامات برای نقش‌های غیرسراسری — واحد سازمانی یا اقدامات محول‌شده شخصی */
+export function actionScopeFilter(user: AuthUser): Record<string, unknown> {
+  if (isGlobalViewer(user)) return {};
+  return user.orgUnitId
+    ? { OR: [{ responsibleUnitId: user.orgUnitId }, { followUpOwnerId: user.id }] }
+    : { followUpOwnerId: user.id };
 }
 
 export class ApiError extends Error {

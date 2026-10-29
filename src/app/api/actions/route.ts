@@ -1,10 +1,9 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
-import { requireAuth, requirePermission, json, handleApiError, audit, fail, ApiError } from "@/lib/api";
+import { requireAuth, requirePermission, json, handleApiError, audit, fail, actionScopeFilter } from "@/lib/api";
 import { getBaselineDate, dueFromDay, programDay } from "@/lib/persian-date";
-import { GLOBAL_VIEW_ROLES } from "@/lib/constants";
 
-/** لیست اقدامات — با محدودسازی واحد سازمانی طبق مجوز */
+/** لیست اقدامات — محدود به واحد سازمانی/اقدامات محول‌شده کاربر (نقش‌های دبیرخانه: کل برنامه) */
 export async function GET(req: NextRequest) {
   try {
     const user = await requireAuth(req);
@@ -13,12 +12,10 @@ export async function GET(req: NextRequest) {
     const status = url.searchParams.get("status");
     const q = url.searchParams.get("q");
 
-    const globalView = user.roles.some((r) => GLOBAL_VIEW_ROLES.includes(r.key));
-    const where: Record<string, unknown> = {};
-    if (group) where.groupKey = group;
-    if (status) where.status = status;
-    if (q) where.OR = [{ title: { contains: q } }, { description: { contains: q } }, { code: { contains: q } }];
-    if (!globalView && user.orgUnitId) where.responsibleUnitId = user.orgUnitId;
+    const where: { AND: Record<string, unknown>[] } = { AND: [actionScopeFilter(user)] };
+    if (group) where.AND.push({ groupKey: group });
+    if (status) where.AND.push({ status });
+    if (q) where.AND.push({ OR: [{ title: { contains: q } }, { description: { contains: q } }, { code: { contains: q } }] });
 
     const actions = await db.action.findMany({
       where,

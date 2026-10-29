@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
-import { requireAuth, requirePermission, json, handleApiError, audit, fail } from "@/lib/api";
+import { requireAuth, requirePermission, json, handleApiError, audit, fail, isGlobalViewer } from "@/lib/api";
 import { getBaselineDate, dueFromDay } from "@/lib/persian-date";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -17,10 +17,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     });
     if (!action) return fail(404, "اقدام یافت نشد.", "NOT_FOUND");
 
-    // محدودسازی دید بین‌واحدی
-    const globalView = user.roles.some((r) => ["SYSTEM_ADMIN", "SECRETARIAT_ADMIN", "CONFIG_ADMIN", "COUNCIL_SECRETARY", "COUNCIL_MEMBER", "AUDITOR", "REPORT_MANAGER"].includes(r.key));
-    if (!globalView && user.orgUnitId && action.responsibleUnitId !== user.orgUnitId) {
-      return fail(403, "دسترسی به اقدامات واحد دیگر مجاز نیست.", "FORBIDDEN");
+    // محدودسازی دید بین‌واحدی — واحد مسئول یا اقدام محول‌شده شخصی (نقش‌های دبیرخانه: کل برنامه)
+    const inScope = isGlobalViewer(user)
+      || (user.orgUnitId != null && action.responsibleUnitId === user.orgUnitId)
+      || action.followUpOwnerId === user.id;
+    if (!inScope) {
+      return fail(403, "دسترسی به اقدامات خارج از حوزه وظایف شما مجاز نیست.", "FORBIDDEN");
     }
 
     // وابستگی‌ها

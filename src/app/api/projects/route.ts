@@ -1,15 +1,30 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
-import { requireAuth, requirePermission, json, handleApiError, audit, fail } from "@/lib/api";
+import { requireAuth, requirePermission, json, handleApiError, audit, fail, isGlobalViewer } from "@/lib/api";
 
+/** لیست پروژه‌ها — نقش‌های غیرسراسری: پروژه‌های واحد خود + پیشران‌های برنامه ابلاغی */
 export async function GET(req: NextRequest) {
   try {
-    await requireAuth(req);
+    const user = await requireAuth(req);
     const url = new URL(req.url);
     const track = url.searchParams.get("track");
     const status = url.searchParams.get("status");
+
+    const globalView = isGlobalViewer(user);
+    const scope = globalView
+      ? {}
+      : user.orgUnitId
+        ? { OR: [{ proposingUnitId: user.orgUnitId }, { trackKey: "DRIVER" }] }
+        : { trackKey: "DRIVER" };
+
     const projects = await db.project.findMany({
-      where: { ...(track ? { trackKey: track } : {}), ...(status ? { status } : {}) },
+      where: {
+        AND: [
+          scope,
+          ...(track ? [{ trackKey: track }] : []),
+          ...(status ? [{ status }] : []),
+        ],
+      },
       include: { proposingUnit: { select: { name: true } }, scores: true },
       orderBy: { code: "asc" },
     });

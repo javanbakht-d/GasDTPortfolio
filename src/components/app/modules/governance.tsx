@@ -43,9 +43,15 @@ type AiAppRow = {
 };
 
 const UNIT_TYPE_LABELS: Record<string, string> = {
-  HQ_DIRECTORATE: "دبیرخانه/ستاد",
+  COMMITTEE: "دبیرخانه شورای راهبری",
+  DEPUTY: "معاونت",
+  HQ_DIRECTORATE: "مدیریت ستادی",
+  INDEPENDENT_OFFICE: "امور مستقل",
+  STAFF_COMPANY: "شرکت ستادی",
+  PROVINCIAL_GAS: "شرکت گاز استانی",
+  REFINERY: "شرکت پالایش گاز",
+  OPS_REGION: "منطقه عملیات انتقال گاز",
   SUBSIDIARY: "شرکت تابعه",
-  COMMITTEE: "کمیته",
 };
 
 /** شش تعهد اسنادی واحدها بر پایه فرم‌های گام ۲ */

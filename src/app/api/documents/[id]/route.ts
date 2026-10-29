@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
-import { requirePermission, json, handleApiError, audit, fail } from "@/lib/api";
+import { requirePermission, json, handleApiError, audit, fail, isGlobalViewer } from "@/lib/api";
 
 const FLOW = ["DRAFT", "IN_REVIEW", "APPROVED", "ISSUED", "SUPERSEDED", "ARCHIVED"];
 
@@ -46,10 +46,17 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requirePermission(req, "documents:view");
+    const user = await requirePermission(req, "documents:view");
     const { id } = await params;
     const doc = await db.document.findUnique({ where: { id }, include: { versions: { orderBy: { createdAt: "desc" } }, ownerUnit: { select: { name: true } } } });
     if (!doc) return fail(404, "سند یافت نشد.", "NOT_FOUND");
+
+    // اسناد محرمانه فقط برای واحد مالک و نقش‌های سراسری دبیرخانه/شورا
+    const inScope = isGlobalViewer(user)
+      || ["PUBLIC", "INTERNAL"].includes(doc.classification)
+      || doc.ownerUnitId === user.orgUnitId;
+    if (!inScope) return fail(403, "دسترسی به این سند خارج از حوزه وظایف شما مجاز نیست.", "FORBIDDEN");
+
     return json({ document: doc });
   } catch (e) {
     return handleApiError(e);

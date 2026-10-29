@@ -1,19 +1,32 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
-import { requireAuth, requirePermission, json, handleApiError, audit, fail } from "@/lib/api";
+import { requireAuth, requirePermission, json, handleApiError, audit, fail, isGlobalViewer } from "@/lib/api";
 
+/** لیست اسناد — اسناد محرمانه فقط برای واحد مالک و نقش‌های مجاز دبیرخانه/شورا */
 export async function GET(req: NextRequest) {
   try {
-    await requireAuth(req);
+    const user = await requireAuth(req);
     const url = new URL(req.url);
     const status = url.searchParams.get("status");
     const type = url.searchParams.get("type");
     const q = url.searchParams.get("q");
+
+    // محدودسازی طبقه‌بندی: نقش‌های غیرسراسری فقط اسناد عمومی/داخلی یا اسناد واحد خود
+    const globalView = isGlobalViewer(user);
+    const scope = globalView
+      ? {}
+      : user.orgUnitId
+        ? { OR: [{ classification: { in: ["PUBLIC", "INTERNAL"] } }, { ownerUnitId: user.orgUnitId }] }
+        : { classification: { in: ["PUBLIC", "INTERNAL"] } };
+
     const docs = await db.document.findMany({
       where: {
-        ...(status ? { status } : {}),
-        ...(type ? { docType: type } : {}),
-        ...(q ? { OR: [{ title: { contains: q } }, { code: { contains: q } }, { description: { contains: q } }] } : {}),
+        AND: [
+          scope,
+          ...(status ? [{ status }] : []),
+          ...(type ? [{ docType: type }] : []),
+          ...(q ? [{ OR: [{ title: { contains: q } }, { code: { contains: q } }, { description: { contains: q } }] }] : []),
+        ],
       },
       include: { ownerUnit: { select: { name: true } } },
       orderBy: { code: "asc" },

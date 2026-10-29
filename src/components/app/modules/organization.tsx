@@ -29,10 +29,19 @@ type OrgUnitRow = {
 };
 
 const UNIT_TYPES: Record<string, string> = {
-  HQ_DIRECTORATE: "معاونت ستادی",
+  COMMITTEE: "دبیرخانه شورای راهبری",
+  DEPUTY: "معاونت",
+  HQ_DIRECTORATE: "مدیریت ستادی",
+  INDEPENDENT_OFFICE: "امور مستقل",
+  STAFF_COMPANY: "شرکت ستادی",
+  PROVINCIAL_GAS: "شرکت گاز استانی",
+  REFINERY: "شرکت پالایش گاز",
+  OPS_REGION: "منطقه عملیات انتقال گاز",
   SUBSIDIARY: "شرکت تابعه",
-  COMMITTEE: "کمیته تخصصی",
 };
+
+/** ترتیب گروه‌های ساختار رسمی شرکت ملی گاز ایران */
+const UNIT_TYPE_ORDER = ["COMMITTEE", "DEPUTY", "HQ_DIRECTORATE", "INDEPENDENT_OFFICE", "STAFF_COMPANY", "PROVINCIAL_GAS", "REFINERY", "OPS_REGION", "SUBSIDIARY"];
 
 /** شش تعهد پوشش هر واحد — گردآوری ۹ پرچم مدل داده در ۶ تعهد سند ابلاغی (گام ۱۱) */
 const OBLIGATIONS: { key: string; label: string; check: (u: OrgUnitRow) => boolean }[] = [
@@ -49,6 +58,7 @@ const coverageOf = (u: OrgUnitRow) => OBLIGATIONS.reduce((n, o) => n + (o.check(
 export function OrganizationModule() {
   const hasPerm = useAppStore((s) => s.hasPerm);
   const [editing, setEditing] = useState<OrgUnitRow | null>(null);
+  const [typeFilter, setTypeFilter] = useState<string>("ALL");
 
   const { data, isLoading, isError, refetch } = useQuery<{ units: OrgUnitRow[] }>({
     queryKey: ["org-units"],
@@ -58,6 +68,13 @@ export function OrganizationModule() {
   const units = data?.units ?? [];
   const fullCoverage = units.filter((u) => coverageOf(u) === OBLIGATIONS.length).length;
   const activeCount = units.filter((u) => u.isActive).length;
+
+  // فیلتر نوع واحد + گروه‌بندی مطابق ساختار رسمی NIGC
+  const filtered = typeFilter === "ALL" ? units : units.filter((u) => u.type === typeFilter);
+  const grouped = UNIT_TYPE_ORDER
+    .map((t) => ({ type: t, items: filtered.filter((u) => u.type === t) }))
+    .filter((g) => g.items.length > 0);
+  const typesPresent = UNIT_TYPE_ORDER.filter((t) => units.some((u) => u.type === t));
 
   return (
     <div className="p-4 lg:p-6">
@@ -98,10 +115,41 @@ export function OrganizationModule() {
         <EmptyState title="واحدی ثبت نشده است" hint="واحدهای سازمانی در زمان استقرار سامانه بارگذاری می‌شوند." />
       )}
 
-      <div className="grid md:grid-cols-2 gap-4">
-        {units.map((u) => {
-          const cov = coverageOf(u);
-          return (
+      {/* فیلتر گروه‌های ساختاری */}
+      {!isLoading && !isError && units.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          <button
+            onClick={() => setTypeFilter("ALL")}
+            className={`rounded-full border px-3 py-1 text-xs transition-colors ${typeFilter === "ALL" ? "bg-primary text-primary-foreground border-primary" : "bg-card hover:bg-muted"}`}
+          >
+            همه واحدها ({faNum(units.length)})
+          </button>
+          {typesPresent.map((t) => {
+            const n = units.filter((u) => u.type === t).length;
+            return (
+              <button
+                key={t}
+                onClick={() => setTypeFilter(t)}
+                className={`rounded-full border px-3 py-1 text-xs transition-colors ${typeFilter === t ? "bg-primary text-primary-foreground border-primary" : "bg-card hover:bg-muted"}`}
+              >
+                {UNIT_TYPES[t] ?? t} ({faNum(n)})
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {grouped.map((g) => (
+        <div key={g.type} className="space-y-3 mb-6">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-bold">{UNIT_TYPES[g.type] ?? g.type}</h3>
+            <Badge variant="outline" className="text-[10px] font-normal">{faNum(g.items.length)} واحد</Badge>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            {g.items.map((u) => {
+              const cov = coverageOf(u);
+              return (
             <Card key={u.id} className={!u.isActive ? "opacity-70" : ""}>
               <CardContent className="p-4 space-y-3">
                 <div className="flex items-start justify-between gap-2">
@@ -161,9 +209,11 @@ export function OrganizationModule() {
                 </div>
               </CardContent>
             </Card>
-          );
-        })}
-      </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
 
       {editing && <EditUnitDialog unit={editing} onClose={() => setEditing(null)} />}
     </div>

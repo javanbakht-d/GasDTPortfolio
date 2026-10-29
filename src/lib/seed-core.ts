@@ -255,21 +255,107 @@ async function main() {
     await db.role.create({ data: { ...r, permissions: JSON.stringify(r.permissions) } });
   }
 
-  // ── واحدهای سازمانی ──
-  console.log("⟳ واحدهای سازمانی…");
-  const mkUnit = (code: string, name: string, type: string, extra: Partial<{ managerName: string; dtLiaison: string; dataOwner: string; dataCustodian: string; liaisonReported: boolean; dataOwnerReported: boolean; internalBriefingDone: boolean; statusReportSubmitted: boolean; maturitySubmitted: boolean; projectsSubmitted: boolean; sortOrder: number }> = {}) =>
+  // ── واحدهای سازمانی — مطابق ساختار رسمی شرکت ملی گاز ایران ──
+  // (مدیریت‌های ستادی، امور مستقل، شرکت‌های ستادی، شرکت‌های گاز استانی،
+  //  شرکت‌های پالایش گاز و مناطق عملیات انتقال گاز)
+  console.log("⟳ واحدهای سازمانی (ساختار رسمی شرکت ملی گاز ایران)…");
+  const faDigit = (n: number | string) => String(n).replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[Number(d)]);
+  type UnitExtra = Partial<{ managerName: string; dtLiaison: string; dataOwner: string; dataCustodian: string; liaisonReported: boolean; dataOwnerReported: boolean; internalBriefingDone: boolean; statusReportSubmitted: boolean; maturitySubmitted: boolean; projectsSubmitted: boolean; sortOrder: number; parentId: string }>;
+  const mkUnit = (code: string, name: string, type: string, extra: UnitExtra = {}) =>
     db.orgUnit.create({ data: { code, name, type, ...extra } });
 
+  // دبیرخانه شورای راهبری و معاونت میزبان برنامه
   const sec = await mkUnit("SEC", "دبیرخانه شورای راهبری تحول دیجیتال و حکمرانی هوشمند", "COMMITTEE", { managerName: "دبیر شورا", sortOrder: 0, internalBriefingDone: true });
-  const rtf = await mkUnit("RTF", "مدیریت پژوهش و فناوری", "HQ_DIRECTORATE", { sortOrder: 1 });
-  const itc = await mkUnit("ITC", "مدیریت فناوری اطلاعات و ارتباطات (فاوا)", "HQ_DIRECTORATE", { managerName: "—", dtLiaison: "معرفی‌شده", dataOwner: "معرفی‌شده", dataCustodian: "معرفی‌شده", liaisonReported: true, dataOwnerReported: true, internalBriefingDone: true, statusReportSubmitted: true, maturitySubmitted: true, projectsSubmitted: true, sortOrder: 2 });
-  const fpf = await mkUnit("FPF", "مدیریت برنامه‌ریزی تلفیقی و مالی", "HQ_DIRECTORATE", { sortOrder: 3 });
-  const leg = await mkUnit("LEG", "مدیریت حقوقی و مهندسی ساختار", "HQ_DIRECTORATE", { sortOrder: 4 });
-  const tgi = await mkUnit("TGI", "شرکت انتقال گاز ایران", "SUBSIDIARY", { sortOrder: 5 });
-  const plg = await mkUnit("PLG", "شرکت خطوط لوله و مخابرات گاز", "SUBSIDIARY", { sortOrder: 6 });
-  const egt = await mkUnit("EGT", "شرکت مهندسی و توسعه گاز ایران", "SUBSIDIARY", { sortOrder: 7 });
-  await mkUnit("GDN", "شرکت گازرسانی ایران", "SUBSIDIARY", { sortOrder: 8 });
-  const units: Record<string, string> = { SEC: sec.id, RTF: rtf.id, ITC: itc.id, FPF: fpf.id, LEG: leg.id, TGI: tgi.id, PLG: plg.id, EGT: egt.id };
+  await mkUnit("FTR", "معاونت مطالعات آینده‌پژوهی و آینده‌نگاری", "DEPUTY", { sortOrder: 1 });
+
+  // ۱۴ مدیریت ستادی
+  const directorates: [string, string, number][] = [
+    ["HRD", "مدیریت توسعه منابع انسانی", 10],
+    ["GSC", "مدیریت هماهنگی امور گازرسانی", 11],
+    ["RTF", "مدیریت پژوهش و فناوری", 12],
+    ["IPG", "مدیریت برنامه‌ریزی تلفیقی", 13],
+    ["INT", "مدیریت امور بین‌الملل", 14],
+    ["FIN", "مدیریت مالی", 15],
+    ["DSP", "مدیریت دیسپچینگ", 16],
+    ["ITC", "مدیریت فناوری اطلاعات و ارتباطات", 17],
+    ["OSE", "مدیریت مهندسی ساختار", 18],
+    ["INV", "مدیریت سرمایه‌گذاری و کسب‌وکار", 19],
+    ["PAM", "مدیریت دارایی‌های فیزیکی", 20],
+    ["HSE", "مدیریت بهداشت، ایمنی، محیط زیست و پدافند غیرعامل", 21],
+    ["ENC", "مدیریت انرژی و کربن", 22],
+    ["PRD", "مدیریت هماهنگی و نظارت بر تولید", 23],
+  ];
+  const units: Record<string, string> = { SEC: sec.id };
+  // واحد پایلوت (فاوا) — پاسخ‌های نمونه ثبت‌شده برای آزمون سازوکار پوشش تعهدات
+  const itcFlags = { dtLiaison: "معرفی‌شده (نمونه)", dataOwner: "معرفی‌شده (نمونه)", dataCustodian: "معرفی‌شده (نمونه)", liaisonReported: true, dataOwnerReported: true, internalBriefingDone: true, statusReportSubmitted: true, maturitySubmitted: true, projectsSubmitted: true };
+  for (const [code, name, sortOrder] of directorates) {
+    const u = await mkUnit(code, name, "HQ_DIRECTORATE", { sortOrder, ...(code === "ITC" ? itcFlags : {}) });
+    units[code] = u.id;
+  }
+
+  // امور مستقل زیر نظر مدیرعامل
+  const offices: [string, string, number][] = [
+    ["ASM", "امور مجامع", 30],
+    ["SLT", "هسته گزینش", 31],
+    ["BRD", "امور اجرایی هیأت بدوی رسیدگی به تخلفات اداری", 32],
+    ["TRD", "امور تخصصی بازرگانی", 33],
+    ["PUB", "روابط عمومی", 34],
+    ["PRT", "حراست", 35],
+    ["IAD", "حسابرسی داخلی", 36],
+    ["INS", "بازرسی و پاسخگویی به شکایات", 37],
+    ["LEG", "امور حقوقی", 38],
+  ];
+  for (const [code, name, sortOrder] of offices) {
+    const u = await mkUnit(code, name, "INDEPENDENT_OFFICE", { sortOrder });
+    units[code] = u.id;
+  }
+
+  // سه شرکت ستادی زیر نظر مدیرعامل و ستاد
+  units.EGT = (await mkUnit("EGT", "شرکت مهندسی و توسعه گاز ایران", "STAFF_COMPANY", { sortOrder: 40 })).id;
+  units.TGI = (await mkUnit("TGI", "شرکت انتقال گاز ایران", "STAFF_COMPANY", { sortOrder: 41 })).id;
+  await mkUnit("IGC", "شرکت بازرگانی گاز ایران", "STAFF_COMPANY", { sortOrder: 42 });
+
+  // ۳۱ شرکت گاز استانی — زیر نظر مدیریت هماهنگی امور گازرسانی
+  const provinces: [string, string][] = [
+    ["PG-EAZ", "شرکت گاز استان آذربایجان شرقی"], ["PG-WAZ", "شرکت گاز استان آذربایجان غربی"],
+    ["PG-ARD", "شرکت گاز استان اردبیل"], ["PG-ESF", "شرکت گاز استان اصفهان"],
+    ["PG-ILM", "شرکت گاز استان ایلام"], ["PG-ALZ", "شرکت گاز استان البرز"],
+    ["PG-BSH", "شرکت گاز استان بوشهر"], ["PG-THR", "شرکت گاز استان تهران"],
+    ["PG-KRM", "شرکت گاز استان کرمان"], ["PG-KHZ", "شرکت گاز استان خوزستان"],
+    ["PG-MRK", "شرکت گاز استان مرکزی"], ["PG-HRM", "شرکت گاز استان هرمزگان"],
+    ["PG-KRD", "شرکت گاز استان کردستان"], ["PG-FRS", "شرکت گاز استان فارس"],
+    ["PG-KSH", "شرکت گاز استان کرمانشاه"], ["PG-KHR", "شرکت گاز استان خراسان رضوی"],
+    ["PG-KHN", "شرکت گاز استان خراسان شمالی"], ["PG-KHS", "شرکت گاز استان خراسان جنوبی"],
+    ["PG-KGB", "شرکت گاز استان کهگیلویه و بویراحمد"], ["PG-MZN", "شرکت گاز استان مازندران"],
+    ["PG-GLS", "شرکت گاز استان گلستان"], ["PG-LRS", "شرکت گاز استان لرستان"],
+    ["PG-CHB", "شرکت گاز استان چهارمحال و بختیاری"], ["PG-GIL", "شرکت گاز استان گیلان"],
+    ["PG-SMN", "شرکت گاز استان سمنان"], ["PG-HMD", "شرکت گاز استان همدان"],
+    ["PG-ZNJ", "شرکت گاز استان زنجان"], ["PG-QOM", "شرکت گاز استان قم"],
+    ["PG-YZD", "شرکت گاز استان یزد"], ["PG-SBZ", "شرکت گاز استان سیستان و بلوچستان"],
+    ["PG-QZN", "شرکت گاز استان قزوین"],
+  ];
+  for (let i = 0; i < provinces.length; i++) {
+    const u = await mkUnit(provinces[i][0], provinces[i][1], "PROVINCIAL_GAS", { sortOrder: 50 + i, parentId: units.GSC });
+    units[provinces[i][0]] = u.id;
+  }
+
+  // ۷ شرکت پالایش گاز — زیر نظر مدیریت هماهنگی و نظارت بر تولید
+  const refineries: [string, string][] = [
+    ["RF-SPG", "شرکت مجتمع گاز پارس جنوبی"], ["RF-JAM", "پالایشگاه گاز فجر جم"],
+    ["RF-PRS", "پالایشگاه گاز پارسیان"], ["RF-HSN", "پالایشگاه گاز شهید هاشمی‌نژاد"],
+    ["RF-BBL", "پالایشگاه گاز بیدبلند"], ["RF-SKQ", "پالایشگاه گاز سرخون و قشم"],
+    ["RF-ILM", "پالایشگاه گاز ایلام"],
+  ];
+  for (let i = 0; i < refineries.length; i++) {
+    const u = await mkUnit(refineries[i][0], refineries[i][1], "REFINERY", { sortOrder: 90 + i, parentId: units.PRD });
+    units[refineries[i][0]] = u.id;
+  }
+
+  // ۱۱ منطقه عملیات انتقال گاز — زیر نظر شرکت انتقال گاز ایران
+  for (let i = 1; i <= 11; i++) {
+    await mkUnit(`TO-${String(i).padStart(2, "0")}`, `منطقه ${faDigit(i)} عملیات انتقال گاز`, "OPS_REGION", { sortOrder: 100 + i, parentId: units.TGI });
+  }
+  console.log(`  ↳ ${await db.orgUnit.count()} واحد سازمانی مطابق ساختار رسمی ایجاد شد.`);
 
   // ── کاربران نمونه ──
   console.log("⟳ کاربران…");
@@ -289,7 +375,7 @@ async function main() {
   const admin = await mkUser("admin", "مدیر سامانه", ["SYSTEM_ADMIN"], undefined, undefined, true);
   const secAdmin = await mkUser("sec.admin", "مدیر دبیرخانه", ["SECRETARIAT_ADMIN", "CONFIG_ADMIN"], units.SEC, "مدیر دبیرخانه شورا");
   const secretary = await mkUser("secretary", "دبیر شورای راهبری", ["COUNCIL_SECRETARY"], units.SEC, "دبیر شورا");
-  await mkUser("council", "رئیس شورای راهبری", ["COUNCIL_MEMBER"], units.RTF, "مدیر پژوهش و فناوری");
+  await mkUser("council", "رئیس شورای راهبری", ["COUNCIL_MEMBER"], units.FTR, "معاونت مطالعات آینده‌پژوهی و آینده‌نگاری");
   const itcMgr = await mkUser("itc.mgr", "مدیر فاوا", ["UNIT_MANAGER"], units.ITC, "مدیریت فناوری اطلاعات و ارتباطات");
   const itcLiaison = await mkUser("itc.liaison", "رابط تحول دیجیتال فاوا", ["DT_LIAISON"], units.ITC, "کارشناس ارشد");
   await mkUser("auditor", "حسابرس برنامه", ["AUDITOR"]);
@@ -368,7 +454,7 @@ async function main() {
   await db.document.create({ data: { code: "NIGC-DOC-007", title: "تفاهم‌نامه مرزبندی مأموریت‌های مدیریت پژوهش و فناوری و مدیریت فاوا", docType: "AGREEMENT", status: "IN_REVIEW", version: "۰٫۱", sourceRef: "گام ۶ و ۲۰ — فصل ۴ سند ابلاغی", relatedRefStep: 20, approvalDueDay: 60, ownerUnitId: units.SEC } });
   await db.document.create({ data: { code: "NIGC-DOC-008", title: "بسته ابزار اجرای الزامات واحدها (فرم‌ها و راهنماها)", docType: "FORM", status: "ISSUED", version: "۱٫۰", sourceRef: "گام ۲ — فصل ۵ سند ابلاغی", relatedRefStep: 2, ownerUnitId: units.SEC } });
   await db.document.create({ data: { code: "NIGC-DOC-009", title: "تقویم اقدامات ۹۰ روزه ابلاغی به واحدها", docType: "REFERENCE_PLAN", status: "ISSUED", version: "۱٫۰", sourceRef: "گام ۳", relatedRefStep: 3, ownerUnitId: units.SEC } });
-  await db.document.create({ data: { code: "NIGC-DOC-010", title: "مستندات نیازهای مالی برنامه — بودجه‌ریزی سال ۱۴۰۶", docType: "BUDGET", status: "DRAFT", version: "۰٫۱", sourceRef: "گام ۷ و ۲۹", relatedRefStep: 29, approvalDueDay: 90, ownerUnitId: units.FPF } });
+  await db.document.create({ data: { code: "NIGC-DOC-010", title: "مستندات نیازهای مالی برنامه — بودجه‌ریزی سال ۱۴۰۶", docType: "BUDGET", status: "DRAFT", version: "۰٫۱", sourceRef: "گام ۷ و ۲۹", relatedRefStep: 29, approvalDueDay: 90, ownerUnitId: units.FIN } });
   await db.document.create({ data: { code: "NIGC-DOC-011", title: "گزارش جامع ۹۰ روزه به مدیرعامل", docType: "REPORT", status: "DRAFT", version: "۰٫۱", sourceRef: "گام ۲۸", relatedRefStep: 28, approvalDueDay: 90, ownerUnitId: units.SEC } });
 
   // ── سه پیشران ──

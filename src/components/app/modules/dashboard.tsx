@@ -15,18 +15,26 @@ import {
 } from "recharts";
 import { CheckCircle2, ListChecks, AlertOctagon, Clock3, FileText, Bot, Briefcase, ShieldAlert, Gavel, TrendingUp, Info } from "lucide-react";
 
+type UnitObligations = {
+  liaisonReported: boolean; dataOwnerReported: boolean; internalBriefingDone: boolean;
+  statusReportSubmitted: boolean; maturitySubmitted: boolean; projectsSubmitted: boolean;
+};
+
 type Dashboard = {
+  scope: "GLOBAL" | "UNIT";
+  unitName: string | null;
   programDay: number;
   baselineDate: string;
   counts: { total: number; completed: number; inProgress: number; notStarted: number; overdue: number; dueIn7: number; dueIn30: number };
   percentages: { completionPct: number; onTimePct: number | null };
   groups: { group: string; total: number; done: number; active: number; avgProgress: number }[];
-  coverage: { liaisonCover: number; dataOwnerCover: number; briefingCover: number; statusReportCover: number; maturityCover: number; projectsCover: number; unitCount: number };
+  coverage: { liaisonCover: number; dataOwnerCover: number; briefingCover: number; statusReportCover: number; maturityCover: number; projectsCover: number; unitCount: number } | null;
+  unitObligations: UnitObligations | null;
   docStatus: { total: number; issued: number; inReview: number; draft: number; approved: number; needsUpload: number };
   aiStatus: { total: number; operational: number; notAssessed: number; highRisk: number; withoutOperationApproval: number };
   projStatus: { total: number; drivers: number; approved: number; scored: number; pending: number };
-  riskStatus: { total: number; open: number; high: number; monitoring: number };
-  decisionStatus: { total: number; pending: number; overdue: number; done: number };
+  riskStatus: { total: number; open: number; high: number; monitoring: number } | null;
+  decisionStatus: { total: number; pending: number; overdue: number; done: number } | null;
   milestones: { label: string; day: number; date: string; passed: boolean }[];
 };
 
@@ -50,9 +58,10 @@ export function DashboardModule() {
 
   const c = data.counts;
   const groupData = data.groups.map((g) => ({ ...g, label: ACTION_GROUPS.find((x) => x.key === g.group)?.label ?? g.group }));
+  const isUnitScope = data.scope === "UNIT";
 
   const kpiCards = [
-    { label: "کل گام‌های برنامه", value: c.total, icon: ListChecks, sub: "۳۷ گام سند مرجع + اقدامات افزوده", tone: "bg-muted text-foreground" },
+    { label: isUnitScope ? "اقدامات در محدوده واحد شما" : "کل گام‌های برنامه", value: c.total, icon: ListChecks, sub: isUnitScope ? "اقدامات واحد یا محول‌شده به شما" : "۳۷ گام سند مرجع + اقدامات افزوده", tone: "bg-muted text-foreground" },
     { label: "تکمیل‌شده", value: c.completed, icon: CheckCircle2, sub: "تأیید، تکمیل یا بسته‌شده", tone: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400" },
     { label: "در حال اجرا", value: c.inProgress, icon: TrendingUp, sub: "شامل در حال بررسی و منتظر اطلاعات", tone: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400" },
     { label: "معوق", value: c.overdue, icon: AlertOctagon, sub: "گذشته از سررسید بدون بستن", tone: "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400" },
@@ -62,8 +71,22 @@ export function DashboardModule() {
     <div className="p-4 lg:p-6">
       <ModuleHeader
         title="داشبورد راهبری کلان"
-        description={`نمای کلان برنامه برای مدیرعامل، شورای راهبری و دبیرخانه — همه شاخص‌ها به‌صورت زنده از پایگاه داده محاسبه می‌شوند (بدون مقدار ثابت در کد).`}
+        description={
+          isUnitScope
+            ? `نمای محدوده واحد${data.unitName ? ` — ${data.unitName}` : ""} — شاخص‌ها فقط از داده‌های حوزه وظایف شما محاسبه می‌شوند (بدون دسترسی به اطلاعات سایر واحدها).`
+            : "نمای کلان برنامه برای مدیرعامل، شورای راهبری و دبیرخانه — همه شاخص‌ها به‌صورت زنده از پایگاه داده محاسبه می‌شوند (بدون مقدار ثابت در کد)."
+        }
       />
+
+      {/* اطلاع‌رسانی محدوده داده برای نقش‌های واحد */}
+      {isUnitScope && (
+        <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 text-sm text-amber-900 dark:text-amber-300">
+          <Info className="h-4 w-4 mt-0.5 shrink-0" />
+          <div className="leading-6">
+            این داشبورد بر اساس <b>شرح وظایف و واحد سازمانی شما</b> فیلتر شده است — اطلاعات و اقدامات سایر واحدها نمایش داده نمی‌شود. تقویم عمومی برنامه (عطف‌های زمانی) برای همه نقش‌ها مشترک است.
+          </div>
+        </div>
+      )}
 
       {/* کارت‌های اصلی */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
@@ -141,7 +164,7 @@ export function DashboardModule() {
       <Tabs defaultValue="groups" className="space-y-4">
         <TabsList>
           <TabsTrigger value="groups">وضعیت گروه‌های زمانی</TabsTrigger>
-          <TabsTrigger value="coverage">پوشش تعهدات واحدها</TabsTrigger>
+          <TabsTrigger value="coverage">{isUnitScope ? "تعهدات واحد شما" : "پوشش تعهدات واحدها"}</TabsTrigger>
           <TabsTrigger value="pillars">ارکان حکمرانی</TabsTrigger>
         </TabsList>
 
@@ -179,29 +202,54 @@ export function DashboardModule() {
         </TabsContent>
 
         <TabsContent value="coverage">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">پوشش تعهدات {faNum(data.coverage.unitCount)} واحد سازمانی (گام‌های ۱۱، ۱۲، ۱۴ و ۲۱/۲۲)</CardTitle>
-            </CardHeader>
-            <CardContent className="grid sm:grid-cols-2 gap-x-8 gap-y-4">
-              {[
-                { label: "معرفی رابط تحول دیجیتال", v: data.coverage.liaisonCover, ref: "شاخص ۲" },
-                { label: "معرفی مالک / متولی داده", v: data.coverage.dataOwnerCover, ref: "شاخص ۲" },
-                { label: "ابلاغ داخلی و جلسه توجیهی", v: data.coverage.briefingCover, ref: "گام ۱۴" },
-                { label: "ارسال وضعیت موجود دیجیتال", v: data.coverage.statusReportCover, ref: "گام ۱۲" },
-                { label: "خودارزیابی بلوغ دیجیتال", v: data.coverage.maturityCover, ref: "گام ۲۲" },
-                { label: "ارسال فهرست پروژه‌ها", v: data.coverage.projectsCover, ref: "گام ۲۱" },
-              ].map((row) => (
-                <div key={row.label}>
-                  <div className="flex items-center justify-between text-sm mb-1.5">
-                    <span>{row.label} <span className="text-[10px] text-muted-foreground">({row.ref})</span></span>
-                    <span className="font-bold">{faNum(row.v)}٪</span>
+          {data.coverage && (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">پوشش تعهدات {faNum(data.coverage.unitCount)} واحد سازمانی (گام‌های ۱۱، ۱۲، ۱۴ و ۲۱/۲۲)</CardTitle>
+              </CardHeader>
+              <CardContent className="grid sm:grid-cols-2 gap-x-8 gap-y-4">
+                {[
+                  { label: "معرفی رابط تحول دیجیتال", v: data.coverage.liaisonCover, ref: "شاخص ۲" },
+                  { label: "معرفی مالک / متولی داده", v: data.coverage.dataOwnerCover, ref: "شاخص ۲" },
+                  { label: "ابلاغ داخلی و جلسه توجیهی", v: data.coverage.briefingCover, ref: "گام ۱۴" },
+                  { label: "ارسال وضعیت موجود دیجیتال", v: data.coverage.statusReportCover, ref: "گام ۱۲" },
+                  { label: "خودارزیابی بلوغ دیجیتال", v: data.coverage.maturityCover, ref: "گام ۲۲" },
+                  { label: "ارسال فهرست پروژه‌ها", v: data.coverage.projectsCover, ref: "گام ۲۱" },
+                ].map((row) => (
+                  <div key={row.label}>
+                    <div className="flex items-center justify-between text-sm mb-1.5">
+                      <span>{row.label} <span className="text-[10px] text-muted-foreground">({row.ref})</span></span>
+                      <span className="font-bold">{faNum(row.v)}٪</span>
+                    </div>
+                    <Progress value={row.v} className="h-2" />
                   </div>
-                  <Progress value={row.v} className="h-2" />
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+          {isUnitScope && data.unitObligations && (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">وضعیت شش تعهد مستندشده واحد شما{data.unitName ? ` — ${data.unitName}` : ""} (گام ۱۱)</CardTitle>
+              </CardHeader>
+              <CardContent className="grid sm:grid-cols-2 gap-x-6 gap-y-3">
+                {[
+                  { label: "معرفی رابط تحول دیجیتال", ok: data.unitObligations.liaisonReported, ref: "شاخص ۲" },
+                  { label: "معرفی مالک / متولی داده", ok: data.unitObligations.dataOwnerReported, ref: "شاخص ۲" },
+                  { label: "ابلاغ داخلی و جلسه توجیهی", ok: data.unitObligations.internalBriefingDone, ref: "گام ۱۴" },
+                  { label: "ارسال وضعیت موجود دیجیتال", ok: data.unitObligations.statusReportSubmitted, ref: "گام ۱۲" },
+                  { label: "خودارزیابی بلوغ دیجیتال", ok: data.unitObligations.maturitySubmitted, ref: "گام ۲۲" },
+                  { label: "ارسال فهرست پروژه‌ها", ok: data.unitObligations.projectsSubmitted, ref: "گام ۲۱" },
+                ].map((row) => (
+                  <div key={row.label} className={`flex items-center gap-2.5 rounded-lg border px-3 py-2.5 text-sm ${row.ok ? "border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300" : "border-border bg-muted/40 text-muted-foreground"}`}>
+                    {row.ok ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" /> : <Clock3 className="h-4 w-4 shrink-0" />}
+                    <span className="flex-1">{row.label}</span>
+                    <span className="text-[10px] text-muted-foreground">({row.ref})</span>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="pillars">
@@ -239,17 +287,27 @@ export function DashboardModule() {
                 </div>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 text-sm font-medium mb-3"><ShieldAlert className="h-4 w-4 text-teal-700" /> ریسک‌ها و مصوبات</div>
-                <div className="space-y-1.5 text-sm">
-                  <div className="flex justify-between"><span className="text-muted-foreground">ریسک باز</span><b>{faNum(data.riskStatus.open)}</b></div>
-                  <div className="flex justify-between text-rose-700 dark:text-rose-400"><span>ریسک شدید (امتیاز ≥۱۵)</span><b>{faNum(data.riskStatus.high)}</b></div>
-                  <div className="flex justify-between"><span className="text-muted-foreground">مصوبات در انتظار اقدام</span><b>{faNum(data.decisionStatus.pending)}</b></div>
-                  <div className="flex justify-between text-rose-700 dark:text-rose-400"><span>مصوبات معوق</span><b>{faNum(data.decisionStatus.overdue)}</b></div>
-                </div>
-              </CardContent>
-            </Card>
+            {data.riskStatus && data.decisionStatus && (
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 text-sm font-medium mb-3"><ShieldAlert className="h-4 w-4 text-teal-700" /> ریسک‌ها و مصوبات</div>
+                  <div className="space-y-1.5 text-sm">
+                    <div className="flex justify-between"><span className="text-muted-foreground">ریسک باز</span><b>{faNum(data.riskStatus.open)}</b></div>
+                    <div className="flex justify-between text-rose-700 dark:text-rose-400"><span>ریسک شدید (امتیاز ≥۱۵)</span><b>{faNum(data.riskStatus.high)}</b></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">مصوبات در انتظار اقدام</span><b>{faNum(data.decisionStatus.pending)}</b></div>
+                    <div className="flex justify-between text-rose-700 dark:text-rose-400"><span>مصوبات معوق</span><b>{faNum(data.decisionStatus.overdue)}</b></div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            {!data.riskStatus && (
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 text-sm font-medium mb-3"><ShieldAlert className="h-4 w-4 text-teal-700" /> ریسک‌ها و مصوبات</div>
+                  <p className="text-xs text-muted-foreground leading-6">سجل ریسک‌ها و مصوبات شورای راهبری در محدوده اطلاعاتی نقش‌های دبیرخانه و شوراست — بر اساس شرح وظایف شما نمایش داده نمی‌شود.</p>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </TabsContent>
       </Tabs>

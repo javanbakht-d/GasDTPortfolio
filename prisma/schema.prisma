@@ -64,7 +64,7 @@ model OrgUnit {
   id             String    @id @default(cuid())
   code           String    @unique
   name           String
-  type           String    @default("DIRECTORATE") // HQ_DIRECTORATE | SUBSIDIARY | COMMITTEE
+  type           String    @default("HQ_DIRECTORATE") // COMMITTEE | DEPUTY | HQ_DIRECTORATE | INDEPENDENT_OFFICE | STAFF_COMPANY | PROVINCIAL_GAS | REFINERY | OPS_REGION | SUBSIDIARY
   parentId       String?
   managerName    String?
   dtLiaison      String? // رابط تحول دیجیتال
