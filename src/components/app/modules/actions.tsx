@@ -100,10 +100,10 @@ export function ActionsModule() {
       <div className="flex flex-wrap items-center gap-2 mb-4">
         <div className="relative flex-1 min-w-52">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="جست‌وجوی عنوان، کد یا شماره گام…" className="pr-9 bg-white" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="جست‌وجوی عنوان، کد یا شماره گام…" className="pr-9 bg-card" />
         </div>
         <Select value={group} onValueChange={setGroup}>
-          <SelectTrigger className="w-56 bg-white"><SelectValue placeholder="گروه زمانی" /></SelectTrigger>
+          <SelectTrigger className="w-56 bg-card"><SelectValue placeholder="گروه زمانی" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">همه گروه‌های زمانی</SelectItem>
             {ACTION_GROUPS.map((g) => (
@@ -112,7 +112,7 @@ export function ActionsModule() {
           </SelectContent>
         </Select>
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="w-44 bg-white"><SelectValue placeholder="وضعیت" /></SelectTrigger>
+          <SelectTrigger className="w-44 bg-card"><SelectValue placeholder="وضعیت" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">همه وضعیت‌ها</SelectItem>
             {Object.entries(ACTION_STATUSES).map(([k, v]) => (
@@ -138,11 +138,11 @@ export function ActionsModule() {
             <button
               key={a.id}
               onClick={() => openAction(a.id)}
-              className={`w-full text-right rounded-xl border bg-white p-4 transition-all hover:shadow-sm hover:border-emerald-600/40 ${a.isOverdue ? "border-rose-300" : a.isDueSoon ? "border-amber-300" : ""}`}
+              className={`w-full text-right rounded-xl border bg-card p-4 transition-all hover:shadow-sm hover:border-emerald-600/40 ${a.isOverdue ? "border-rose-300" : a.isDueSoon ? "border-amber-300 dark:border-amber-800" : ""}`}
             >
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="flex items-start gap-3 min-w-0 flex-1">
-                  <div className={`h-9 w-9 rounded-lg flex items-center justify-center text-sm font-bold shrink-0 ${a.isOverdue ? "bg-rose-100 text-rose-700" : "bg-slate-100 text-slate-700"}`}>
+                  <div className={`h-9 w-9 rounded-lg flex items-center justify-center text-sm font-bold shrink-0 ${a.isOverdue ? "bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-400" : "bg-muted text-foreground"}`}>
                     {faNum(a.refStep)}
                   </div>
                   <div className="min-w-0">
@@ -153,7 +153,7 @@ export function ActionsModule() {
                       {a.cycleKey && <span>· چرخه {CYCLES[a.cycleKey]}</span>}
                       <span>· {a.responsibleUnit?.name ?? "دبیرخانه"}</span>
                       {a.dependencies.length > 0 && (
-                        <span className="inline-flex items-center gap-1 text-slate-500">
+                        <span className="inline-flex items-center gap-1 text-muted-foreground">
                           <Link2 className="h-3 w-3" /> وابسته به گام {faNum(a.dependencies.join("، "))}
                         </span>
                       )}
@@ -165,7 +165,7 @@ export function ActionsModule() {
                     <PriorityBadge priority={a.priority} />
                     <ActionStatusBadge status={a.status} />
                   </div>
-                  <div className={`text-xs ${a.isOverdue ? "text-rose-600 font-medium" : a.isDueSoon ? "text-amber-600 font-medium" : "text-muted-foreground"}`}>
+                  <div className={`text-xs ${a.isOverdue ? "text-rose-600 dark:text-rose-400 font-medium" : a.isDueSoon ? "text-amber-600 dark:text-amber-400 font-medium" : "text-muted-foreground"}`}>
                     {a.dueDate
                       ? (a.isOverdue ? `معوق — ${faNum(-(d ?? 0))} روز از سررسید (${faDate(a.dueDate)})`
                         : a.isDueSoon ? `${faNum(d ?? 0)} روز تا سررسید (${faDate(a.dueDate)})`
@@ -260,7 +260,7 @@ function ActionDetailDialog({ id, onClose }: { id: string; onClose: () => void }
                   <DialogTitle className="text-base leading-7">{a.title}</DialogTitle>
                   <DialogDescription className="mt-1">
                     {a.code} · {ACTION_TYPES[a.actionType]} · {ACTION_GROUPS.find((g) => g.key === a.groupKey)?.label}
-                    {a.sourceRef && <span className="text-slate-500"> · منبع: {a.sourceRef}</span>}
+                    {a.sourceRef && <span className="text-muted-foreground"> · منبع: {a.sourceRef}</span>}
                   </DialogDescription>
                 </div>
                 <ActionStatusBadge status={a.status} />
@@ -272,32 +272,32 @@ function ActionDetailDialog({ id, onClose }: { id: string; onClose: () => void }
                 {/* شرح و خروجی */}
                 <Card>
                   <CardContent className="p-4 space-y-3 text-sm">
-                    <p className="leading-7 text-slate-700">{a.description}</p>
+                    <p className="leading-7 text-foreground">{a.description}</p>
                     <Separator />
                     <div className="grid sm:grid-cols-2 gap-3">
-                      <div className="flex gap-2"><CalendarDays className="h-4 w-4 text-emerald-700 shrink-0 mt-0.5" />
+                      <div className="flex gap-2"><CalendarDays className="h-4 w-4 text-emerald-700 dark:text-emerald-400 shrink-0 mt-0.5" />
                         <div>
                           <div className="font-medium">مهلت</div>
                           <div className="text-muted-foreground text-xs leading-5">
                             {a.dueStartDay != null && a.dueEndDay != null ? `روز ${faNum(a.dueStartDay)} تا ${faNum(a.dueEndDay)} از ابلاغ` : a.cycleKey ? `چرخه ${CYCLES[a.cycleKey] ?? "مستمر"}` : "—"}
-                            {a.dueDate && <> — سررسید: <b className="text-slate-700">{faDate(a.dueDate)}</b></>}
+                            {a.dueDate && <> — سررسید: <b className="text-foreground">{faDate(a.dueDate)}</b></>}
                             {a.dueDateOverridden && <Badge variant="outline" className="ms-1 text-[10px]">اصلاح‌شده (سابقه ثبت شده)</Badge>}
                           </div>
                         </div>
                       </div>
-                      <div className="flex gap-2"><FileCheck2 className="h-4 w-4 text-emerald-700 shrink-0 mt-0.5" />
+                      <div className="flex gap-2"><FileCheck2 className="h-4 w-4 text-emerald-700 dark:text-emerald-400 shrink-0 mt-0.5" />
                         <div>
                           <div className="font-medium">خروجی قابل تحویل</div>
                           <div className="text-muted-foreground text-xs leading-5">{a.deliverable ?? "—"}</div>
                         </div>
                       </div>
-                      <div className="flex gap-2"><Building2 className="h-4 w-4 text-emerald-700 shrink-0 mt-0.5" />
+                      <div className="flex gap-2"><Building2 className="h-4 w-4 text-emerald-700 dark:text-emerald-400 shrink-0 mt-0.5" />
                         <div>
                           <div className="font-medium">واحد مسئول</div>
                           <div className="text-muted-foreground text-xs leading-5">{a.responsibleUnit?.name ?? "دبیرخانه"}</div>
                         </div>
                       </div>
-                      <div className="flex gap-2"><UserCheck className="h-4 w-4 text-emerald-700 shrink-0 mt-0.5" />
+                      <div className="flex gap-2"><UserCheck className="h-4 w-4 text-emerald-700 dark:text-emerald-400 shrink-0 mt-0.5" />
                         <div>
                           <div className="font-medium">مسئول پیگیری</div>
                           <div className="text-muted-foreground text-xs leading-5">{a.followUpOwner?.fullName ?? "—"}</div>
@@ -307,7 +307,7 @@ function ActionDetailDialog({ id, onClose }: { id: string; onClose: () => void }
                     {data.depActions.length > 0 && (
                       <>
                         <Separator />
-                        <div className="flex gap-2"><Link2 className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                        <div className="flex gap-2"><Link2 className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                           <div className="flex-1">
                             <div className="font-medium mb-1">وابستگی‌ها (ترتیب الزامی)</div>
                             <div className="space-y-1">
@@ -324,7 +324,7 @@ function ActionDetailDialog({ id, onClose }: { id: string; onClose: () => void }
                       </>
                     )}
                     {a.delayReason && (
-                      <div className="rounded-lg bg-rose-50 border border-rose-200 p-3 text-xs text-rose-800 flex gap-2">
+                      <div className="rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 p-3 text-xs text-rose-800 flex gap-2">
                         <AlertOctagon className="h-4 w-4 shrink-0" />
                         <div><b>علت تأخیر ثبت‌شده:</b> {a.delayReason}</div>
                       </div>
@@ -348,7 +348,7 @@ function ActionDetailDialog({ id, onClose }: { id: string; onClose: () => void }
                           <button
                             key={s}
                             onClick={() => setTransitionStatus(s)}
-                            className={`rounded-lg border px-3 py-1.5 text-xs transition-colors ${transitionStatus === s ? "border-emerald-600 bg-emerald-50 text-emerald-800 font-medium" : "hover:border-slate-300"}`}
+                            className={`rounded-lg border px-3 py-1.5 text-xs transition-colors ${transitionStatus === s ? "border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 font-medium" : "hover:border-border"}`}
                           >
                             {ACTION_STATUSES[s].label}
                           </button>
@@ -419,14 +419,14 @@ function ActionDetailDialog({ id, onClose }: { id: string; onClose: () => void }
                     <div className="space-y-3">
                       {(data?.updates ?? []).map((u) => (
                         <div key={u.id} className="flex gap-3 text-sm">
-                          <div className="h-2 w-2 rounded-full bg-slate-300 mt-2 shrink-0" />
+                          <div className="h-2 w-2 rounded-full bg-muted mt-2 shrink-0" />
                           <div className="flex-1">
                             <div className="flex items-center justify-between gap-2">
-                              <span className="text-xs font-medium text-slate-700">{typeLabels[u.type] ?? u.type}{u.toStatus ? ` → ${ACTION_STATUSES[u.toStatus]?.label ?? u.toStatus}` : ""}</span>
+                              <span className="text-xs font-medium text-foreground">{typeLabels[u.type] ?? u.type}{u.toStatus ? ` → ${ACTION_STATUSES[u.toStatus]?.label ?? u.toStatus}` : ""}</span>
                               <span className="text-[10px] text-muted-foreground shrink-0">{faDateTime(u.createdAt)}</span>
                             </div>
                             <div className="text-xs text-muted-foreground leading-5 mt-0.5">{u.content}</div>
-                            {u.user && <div className="text-[10px] text-slate-400 mt-0.5">{u.user.fullName}</div>}
+                            {u.user && <div className="text-[10px] text-muted-foreground/80 mt-0.5">{u.user.fullName}</div>}
                           </div>
                         </div>
                       ))}

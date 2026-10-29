@@ -274,8 +274,10 @@ async function main() {
   // ── کاربران نمونه ──
   console.log("⟳ کاربران…");
   const hash = await bcrypt.hash("Nigc@1405", 10);
-  const mkUser = (username: string, fullName: string, roleKeys: string[], orgUnitId?: string, title?: string) =>
-    db.user.create({ data: { username, fullName, passwordHash: hash, orgUnitId, title, email: `${username}@nigc-dtg.local` } })
+  // حساب admin فعال می‌ماند؛ سایر حساب‌های نمونه به‌صورت پیش‌فرض غیرفعال‌اند
+  // (برای استقرار عملیاتی — راهبر با admin وارد شده و حساب واقعی‌ها را می‌سازد)
+  const mkUser = (username: string, fullName: string, roleKeys: string[], orgUnitId?: string, title?: string, isActive = false) =>
+    db.user.create({ data: { username, fullName, passwordHash: hash, orgUnitId, title, email: `${username}@nigc-dtg.local`, isActive } })
       .then(async (u) => {
         for (const rk of roleKeys) {
           const role = await db.role.findUnique({ where: { key: rk } });
@@ -284,7 +286,7 @@ async function main() {
         return u;
       });
 
-  const admin = await mkUser("admin", "مدیر سامانه", ["SYSTEM_ADMIN"]);
+  const admin = await mkUser("admin", "مدیر سامانه", ["SYSTEM_ADMIN"], undefined, undefined, true);
   const secAdmin = await mkUser("sec.admin", "مدیر دبیرخانه", ["SECRETARIAT_ADMIN", "CONFIG_ADMIN"], units.SEC, "مدیر دبیرخانه شورا");
   const secretary = await mkUser("secretary", "دبیر شورای راهبری", ["COUNCIL_SECRETARY"], units.SEC, "دبیر شورا");
   await mkUser("council", "رئیس شورای راهبری", ["COUNCIL_MEMBER"], units.RTF, "مدیر پژوهش و فناوری");

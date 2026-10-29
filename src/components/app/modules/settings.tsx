@@ -186,21 +186,21 @@ const JOB_KEY_LABELS: Record<string, string> = {
 };
 
 const RUN_STATUS: Record<string, { label: string; cls: string }> = {
-  SUCCESS: { label: "موفق", cls: "bg-emerald-50 text-emerald-800 border-emerald-200" },
-  PARTIAL: { label: "ناقص", cls: "bg-amber-50 text-amber-800 border-amber-200" },
-  FAILED: { label: "ناموفق", cls: "bg-rose-50 text-rose-800 border-rose-200" },
-  RUNNING: { label: "در حال اجرا", cls: "bg-slate-50 text-slate-700 border-slate-200" },
+  SUCCESS: { label: "موفق", cls: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900" },
+  PARTIAL: { label: "ناقص", cls: "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-900" },
+  FAILED: { label: "ناموفق", cls: "bg-rose-50 dark:bg-rose-950/40 text-rose-800 border-rose-200 dark:border-rose-900" },
+  RUNNING: { label: "در حال اجرا", cls: "bg-muted/60 text-foreground border-border" },
 };
 
 type Tone = "ok" | "warn" | "bad" | "neutral";
 const TONE_CARD: Record<Tone, string> = {
-  ok: "border-emerald-200 bg-emerald-50/50",
-  warn: "border-amber-200 bg-amber-50/50",
-  bad: "border-rose-200 bg-rose-50/50",
-  neutral: "border-slate-200 bg-slate-50/60",
+  ok: "border-emerald-200 dark:border-emerald-900 bg-emerald-50/50 dark:bg-emerald-950/40",
+  warn: "border-amber-200 dark:border-amber-900 bg-amber-50/50 dark:bg-amber-950/40",
+  bad: "border-rose-200 dark:border-rose-900 bg-rose-50/50 dark:bg-rose-950/40",
+  neutral: "border-border bg-muted/60",
 };
 const TONE_DOT: Record<Tone, string> = {
-  ok: "bg-emerald-500", warn: "bg-amber-500", bad: "bg-rose-500", neutral: "bg-slate-400",
+  ok: "bg-emerald-500", warn: "bg-amber-500", bad: "bg-rose-500", neutral: "bg-muted-foreground/40",
 };
 
 const fmtDuration = (ms: number | null | undefined) => {
@@ -267,32 +267,32 @@ export function SettingsModule() {
       <Card className="mb-5">
         <CardContent className="p-4">
           <div className="flex items-center gap-2 mb-3 text-sm font-medium">
-            <ShieldAlert className="h-4 w-4 text-emerald-700" /> سلامت سامانه
+            <ShieldAlert className="h-4 w-4 text-emerald-700 dark:text-emerald-400" /> سلامت سامانه
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="rounded-lg border bg-slate-50/60 p-3 flex items-start gap-2.5">
-              <Database className="h-4 w-4 text-emerald-600 mt-0.5 shrink-0" />
+            <div className="rounded-lg border bg-muted/60 p-3 flex items-start gap-2.5">
+              <Database className="h-4 w-4 text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0" />
               <div>
                 <div className="text-xs font-medium">پایگاه داده</div>
                 <div className="text-[11px] text-muted-foreground mt-0.5">
-                  {isLoading ? "در حال بررسی…" : isError ? <span className="text-rose-600">خطا در اتصال</span> : <span className="text-emerald-700">متصل — دریافت تنظیمات موفق</span>}
+                  {isLoading ? "در حال بررسی…" : isError ? <span className="text-rose-600 dark:text-rose-400">خطا در اتصال</span> : <span className="text-emerald-700 dark:text-emerald-400">متصل — دریافت تنظیمات موفق</span>}
                 </div>
               </div>
             </div>
-            <div className="rounded-lg border bg-slate-50/60 p-3 flex items-start gap-2.5">
+            <div className="rounded-lg border bg-muted/60 p-3 flex items-start gap-2.5">
               <Globe className="h-4 w-4 text-teal-600 mt-0.5 shrink-0" />
               <div>
                 <div className="text-xs font-medium">منطقه زمانی عملیاتی</div>
                 <div className="text-[11px] text-muted-foreground mt-0.5" dir="ltr">{timezone}</div>
               </div>
             </div>
-            <div className="rounded-lg border bg-slate-50/60 p-3 flex items-start gap-2.5">
-              <Sparkles className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+            <div className="rounded-lg border bg-muted/60 p-3 flex items-start gap-2.5">
+              <Sparkles className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
               <div>
                 <div className="text-xs font-medium">سرویس هوش مصنوعی</div>
                 <div className="text-[11px] text-muted-foreground mt-0.5">
                   {aiProvider ? <span dir="ltr">provider: {aiProvider}</span> : "پیکربندی نشده"}
-                  {settingMap["ai.enabled"]?.value === "false" && <span className="text-amber-700"> — غیرفعال</span>}
+                  {settingMap["ai.enabled"]?.value === "false" && <span className="text-amber-700 dark:text-amber-400"> — غیرفعال</span>}
                 </div>
               </div>
             </div>
@@ -312,7 +312,7 @@ export function SettingsModule() {
         {/* ─────────── تب پیکربندی ─────────── */}
         <TabsContent value="config">
           {!canManage && (
-            <div className="rounded-xl bg-slate-50 border p-3 text-xs text-muted-foreground mb-4">
+            <div className="rounded-xl bg-muted/60 border p-3 text-xs text-muted-foreground mb-4">
               برای ویرایش تنظیمات، مجوز «مدیریت تنظیمات» لازم است — مقادیر به‌صورت فقط‌خواندنی نمایش داده می‌شوند.
             </div>
           )}
@@ -330,14 +330,14 @@ export function SettingsModule() {
                     return (
                       <div key={s.key} className="py-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
                         <div className="sm:w-80 shrink-0">
-                          <div className="text-xs font-mono text-slate-700" dir="ltr">{s.key}</div>
+                          <div className="text-xs font-mono text-foreground" dir="ltr">{s.key}</div>
                           {s.description && <div className="text-[11px] text-muted-foreground leading-4 mt-0.5">{s.description}</div>}
-                          <div className="text-[10px] text-slate-400 mt-0.5">آخرین تغییر: {faDateTime(s.updatedAt)}</div>
+                          <div className="text-[10px] text-muted-foreground/80 mt-0.5">آخرین تغییر: {faDateTime(s.updatedAt)}</div>
                         </div>
                         <div className="flex-1 flex items-center gap-2">
                           {isBaseline ? (
                             <div className="flex items-center gap-2 flex-1">
-                              <Input value={faDate(s.value)} readOnly className="max-w-40 bg-slate-50" />
+                              <Input value={faDate(s.value)} readOnly className="max-w-40 bg-muted/60" />
                               <Button variant="link" size="sm" className="text-xs px-0" onClick={() => setTab("baseline")}>
                                 تغییر با گردش کار تأیید ←
                               </Button>
@@ -362,7 +362,7 @@ export function SettingsModule() {
                             />
                           )}
                           {changes[s.key] !== undefined && changes[s.key] !== s.value && (
-                            <Badge variant="outline" className="text-[10px] bg-amber-50 text-amber-800 border-amber-200 shrink-0">تغییر کرده</Badge>
+                            <Badge variant="outline" className="text-[10px] bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-900 shrink-0">تغییر کرده</Badge>
                           )}
                         </div>
                       </div>
@@ -418,7 +418,7 @@ export function SettingsModule() {
                   )}
                 </div>
               </div>
-              <div className="mt-3 rounded-lg bg-amber-50 border border-amber-200 p-3 text-[11px] text-amber-900 leading-5">
+              <div className="mt-3 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 p-3 text-[11px] text-amber-900 dark:text-amber-300 leading-5">
                 تغییر تاریخ مبنا یک تصمیم حاکمیتی است: نیازمند ثبت <b>علت</b> و <b>مرجع تأیید</b> است، همه مهلت‌های مصوب بازمحاسبه می‌شوند و در <b>سوابق ممیزی</b> با هویت تغییردهنده ثبت می‌گردد.
               </div>
             </CardContent>
@@ -426,7 +426,7 @@ export function SettingsModule() {
 
           <Card>
             <CardContent className="p-4">
-              <div className="text-sm font-medium mb-3 flex items-center gap-2"><History className="h-4 w-4 text-slate-500" /> تاریخچه تغییرات مبنا</div>
+              <div className="text-sm font-medium mb-3 flex items-center gap-2"><History className="h-4 w-4 text-muted-foreground" /> تاریخچه تغییرات مبنا</div>
               {baselineChanges.length === 0 ? (
                 <div className="text-xs text-muted-foreground py-4 text-center">تغییری در تاریخ مبنا ثبت نشده است.</div>
               ) : (
@@ -525,7 +525,7 @@ function AuditTable({ page, setPage }: { page: number; setPage: (p: number) => v
                       <TableCell className="text-xs">{ACTION_LABELS[l.action] ?? l.action}</TableCell>
                       <TableCell className="text-xs">
                         {l.entityType ? ENTITY_LABELS[l.entityType] ?? l.entityType : "—"}
-                        {l.entityId && <div className="text-[10px] text-slate-400 font-mono" dir="ltr">{truncate(l.entityId, 14)}</div>}
+                        {l.entityId && <div className="text-[10px] text-muted-foreground/80 font-mono" dir="ltr">{truncate(l.entityId, 14)}</div>}
                       </TableCell>
                       <TableCell className="text-[11px] text-muted-foreground max-w-72">
                         <div dir="ltr" className="font-mono leading-4 truncate" title={l.details ?? ""}>
@@ -586,7 +586,7 @@ function BaselineChangeDialog({ current, onClose, onSaved }: {
           <DialogDescription>تاریخ فعلی: {faDate(current)}</DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
-          <div className="rounded-lg bg-rose-50 border border-rose-200 p-3 text-xs text-rose-900 leading-5">
+          <div className="rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 p-3 text-xs text-rose-900 leading-5">
             هشدار: با ثبت تاریخ جدید، <b>همه سررسیدهای ۳۷ گام به‌صورت خودکار بازمحاسبه می‌شوند</b>. این عمل نیازمند مجوز رسمی است، علت و مرجع تأیید الزامی است و در سوابق ممیزی باقی می‌ماند.
           </div>
           <div className="space-y-1.5">
@@ -672,7 +672,7 @@ function RemindersTab({ rows, canManage, isLoading, isError, onRetry }: {
   return (
     <div className="space-y-4">
       {!canManage && (
-        <div className="rounded-xl bg-slate-50 border p-3 text-xs text-muted-foreground">
+        <div className="rounded-xl bg-muted/60 border p-3 text-xs text-muted-foreground">
           برای ویرایش تنظیمات یادآوری، مجوز «مدیریت تنظیمات» لازم است — مقادیر به‌صورت فقط‌خواندنی نمایش داده می‌شوند.
         </div>
       )}
@@ -685,8 +685,8 @@ function RemindersTab({ rows, canManage, isLoading, isError, onRetry }: {
               <CardContent className="p-4">
                 <div className="text-sm font-medium flex items-center gap-2">
                   {g.id === "engine" && <BellRing className="h-4 w-4 text-teal-700" />}
-                  {g.id === "policy" && <Clock className="h-4 w-4 text-amber-600" />}
-                  {g.id === "digest" && <ClipboardList className="h-4 w-4 text-emerald-700" />}
+                  {g.id === "policy" && <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />}
+                  {g.id === "digest" && <ClipboardList className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />}
                   {g.title}
                 </div>
                 <p className="text-[11px] text-muted-foreground leading-5 mt-1 mb-2">{g.desc}</p>
@@ -698,7 +698,7 @@ function RemindersTab({ rows, canManage, isLoading, isError, onRetry }: {
                       <div key={m.key} className="py-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
                         <div className="sm:w-80 shrink-0">
                           <div className="text-xs font-medium">{m.label}</div>
-                          <div className="text-[10px] font-mono text-slate-400 mt-0.5" dir="ltr">{m.key}</div>
+                          <div className="text-[10px] font-mono text-muted-foreground/80 mt-0.5" dir="ltr">{m.key}</div>
                         </div>
                         <div className="flex-1 flex flex-wrap items-center gap-2">
                           {m.type === "boolean" ? (
@@ -740,10 +740,10 @@ function RemindersTab({ rows, canManage, isLoading, isError, onRetry }: {
                             />
                           )}
                           {changed && (
-                            <Badge variant="outline" className="text-[10px] bg-amber-50 text-amber-800 border-amber-200 shrink-0">تغییر کرده</Badge>
+                            <Badge variant="outline" className="text-[10px] bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-900 shrink-0">تغییر کرده</Badge>
                           )}
                           {!rowMap[m.key] && (
-                            <Badge variant="outline" className="text-[10px] text-slate-500 border-slate-200 shrink-0">پیش‌فرض پیشنهادی — ذخیره نشده</Badge>
+                            <Badge variant="outline" className="text-[10px] text-muted-foreground border-border shrink-0">پیش‌فرض پیشنهادی — ذخیره نشده</Badge>
                           )}
                           {m.hint && <div className="text-[10px] text-muted-foreground w-full leading-4">{m.hint}</div>}
                         </div>
@@ -760,7 +760,7 @@ function RemindersTab({ rows, canManage, isLoading, isError, onRetry }: {
             <CardContent className="p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="text-sm font-medium flex items-center gap-2"><SlidersHorizontal className="h-4 w-4 text-teal-700" /> مدل اولویت‌بندی وظایف (پیشنهادی)</div>
-                <div className={cn("text-xs font-medium", weightsSum === 100 ? "text-emerald-700" : "text-amber-700")}>
+                <div className={cn("text-xs font-medium", weightsSum === 100 ? "text-emerald-700 dark:text-emerald-400" : "text-amber-700 dark:text-amber-400")}>
                   جمع وزن‌ها: {faNum(weightsSum)} از ۱۰۰
                 </div>
               </div>
@@ -789,7 +789,7 @@ function RemindersTab({ rows, canManage, isLoading, isError, onRetry }: {
                 ))}
               </div>
               {weightsInvalid && (
-                <div className="mt-3 rounded-lg bg-amber-50 border border-amber-200 p-2.5 text-[11px] text-amber-900 leading-5">
+                <div className="mt-3 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 p-2.5 text-[11px] text-amber-900 dark:text-amber-300 leading-5">
                   جمع وزن‌ها باید دقیقاً ۱۰۰ باشد تا دکمه ذخیره فعال شود.
                 </div>
               )}
@@ -822,7 +822,7 @@ function HealthCard({ tone, icon, title, sub, children }: {
 }) {
   return (
     <div className={cn("rounded-xl border p-4 flex flex-col gap-2", TONE_CARD[tone])}>
-      <div className="flex items-center gap-2 text-xs font-medium text-slate-700">{icon}<span>{title}</span></div>
+      <div className="flex items-center gap-2 text-xs font-medium text-foreground">{icon}<span>{title}</span></div>
       <div className="text-sm leading-6">{children}</div>
       {sub && <div className="text-[11px] text-muted-foreground leading-5">{sub}</div>}
     </div>
@@ -834,7 +834,7 @@ function HealthDot({ tone }: { tone: Tone }) {
 }
 
 function RunStatusChip({ status }: { status: string }) {
-  const s = RUN_STATUS[status] ?? { label: status, cls: "bg-slate-50 text-slate-700 border-slate-200" };
+  const s = RUN_STATUS[status] ?? { label: status, cls: "bg-muted/60 text-foreground border-border" };
   return <span className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium", s.cls)}>{s.label}</span>;
 }
 
@@ -895,21 +895,21 @@ function HealthTab({ canManage }: { canManage: boolean }) {
     <div className="space-y-4">
       {/* هشدارهای وضعیت */}
       {d.scheduler.enabled === false && (
-        <Alert className="border-amber-300 bg-amber-50 text-amber-900 [&>svg]:text-amber-600">
+        <Alert className="border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300 [&>svg]:text-amber-600 dark:text-amber-400">
           <AlertTriangle />
           <AlertTitle>موتور یادآوری غیرفعال است</AlertTitle>
           <AlertDescription>در تب «یادآوری‌ها و گزارش‌های خودکار» می‌توانید آن را فعال کنید؛ تا آن زمان هیچ یادآوری یا گزارش خودکاری اجرا نمی‌شود.</AlertDescription>
         </Alert>
       )}
       {d.scheduler.alive === false && (
-        <Alert className="border-amber-300 bg-amber-50 text-amber-900 [&>svg]:text-amber-600">
+        <Alert className="border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300 [&>svg]:text-amber-600 dark:text-amber-400">
           <AlertTriangle />
           <AlertTitle>زمان‌بند پاسخگو نیست</AlertTitle>
           <AlertDescription>از آخرین اجرا بیش از چند برابر فاصله تیک گذشته است — فرایند سروری (instrumentation) را بررسی کنید. برای آزمون می‌توانید چرخه را دستی اجرا کنید.</AlertDescription>
         </Alert>
       )}
       {d.scheduler.failedLast24h > 0 && (
-        <Alert variant="destructive" className="border-rose-200 bg-rose-50 [&>svg]:text-rose-600">
+        <Alert variant="destructive" className="border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/40 [&>svg]:text-rose-600 dark:text-rose-400">
           <AlertTriangle />
           <AlertTitle>{faNum(d.scheduler.failedLast24h)} اجرای ناموفق در ۲۴ ساعت گذشته</AlertTitle>
           <AlertDescription>جزئیات در جدول «اجرای‌های اخیر» آمده است؛ در صورت فعال‌بودن گزینه هشدار، به مدیران نیز اعلان صادر شده است.</AlertDescription>
@@ -921,7 +921,7 @@ function HealthTab({ canManage }: { canManage: boolean }) {
         <CardContent className="p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2 text-sm font-medium">
-              <HeartPulse className="h-4 w-4 text-rose-600" /> وضعیت لحظه‌ای موتور یادآوری و دستیار
+              <HeartPulse className="h-4 w-4 text-rose-600 dark:text-rose-400" /> وضعیت لحظه‌ای موتور یادآوری و دستیار
               {dataUpdatedAt > 0 && (
                 <span className="text-[11px] font-normal text-muted-foreground">— آخرین به‌روزرسانی: {faDateTime(new Date(dataUpdatedAt))} (بازخوانی خودکار هر ۳۰ ثانیه)</span>
               )}
@@ -944,7 +944,7 @@ function HealthTab({ canManage }: { canManage: boolean }) {
           tone={lastRunTone}
           icon={<Activity className="h-4 w-4 text-teal-700" />}
           title="آخرین اجرای زمان‌بند"
-          sub={lastRun?.error ? <span className="text-rose-700">خطا: {truncate(lastRun.error, 90)}</span> : undefined}
+          sub={lastRun?.error ? <span className="text-rose-700 dark:text-rose-400">خطا: {truncate(lastRun.error, 90)}</span> : undefined}
         >
           {lastRun ? (
             <>
@@ -962,7 +962,7 @@ function HealthTab({ canManage }: { canManage: boolean }) {
           )}
           <div className="flex items-center gap-1.5 text-[11px]">
             <HealthDot tone={d.scheduler.alive ? "ok" : "bad"} />
-            <span className={d.scheduler.alive ? "text-emerald-800" : "text-rose-800"}>
+            <span className={d.scheduler.alive ? "text-emerald-800 dark:text-emerald-300" : "text-rose-800"}>
               {d.scheduler.alive ? "زمان‌بند زنده است — تیک خودکار فعال" : "زمان‌بند پاسخگو نیست"}
             </span>
             <span className="text-muted-foreground" dir="ltr">(tick: {faNum(d.scheduler.tickIntervalSec)}s)</span>
@@ -971,13 +971,13 @@ function HealthTab({ canManage }: { canManage: boolean }) {
 
         <HealthCard
           tone={failedTone}
-          icon={<AlertTriangle className={cn("h-4 w-4", d.scheduler.failedLast24h > 0 ? "text-rose-600" : "text-emerald-600")} />}
+          icon={<AlertTriangle className={cn("h-4 w-4", d.scheduler.failedLast24h > 0 ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400")} />}
           title="اجراهای ناموفق ۲۴ ساعت"
           sub="وضعیت PARTIAL یا FAILED در بازه ۲۴ ساعت گذشته"
         >
           <div className="flex items-center gap-2">
             <HealthDot tone={failedTone} />
-            <span className={cn("text-2xl font-bold", d.scheduler.failedLast24h > 0 ? "text-rose-700" : "text-emerald-700")}>{faNum(d.scheduler.failedLast24h)}</span>
+            <span className={cn("text-2xl font-bold", d.scheduler.failedLast24h > 0 ? "text-rose-700 dark:text-rose-400" : "text-emerald-700 dark:text-emerald-400")}>{faNum(d.scheduler.failedLast24h)}</span>
             <span className="text-xs text-muted-foreground">{d.scheduler.failedLast24h > 0 ? "نیازمند بررسی" : "بدون شکست"}</span>
           </div>
         </HealthCard>
@@ -997,22 +997,22 @@ function HealthTab({ canManage }: { canManage: boolean }) {
 
         <HealthCard
           tone={d.infrastructure.dbConnected ? "ok" : "bad"}
-          icon={<Database className={cn("h-4 w-4", d.infrastructure.dbConnected ? "text-emerald-600" : "text-rose-600")} />}
+          icon={<Database className={cn("h-4 w-4", d.infrastructure.dbConnected ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400")} />}
           title="اتصال پایگاه داده"
           sub={`منطقه زمانی عملیاتی: ${d.infrastructure.timezone}`}
         >
           <div className="flex items-center gap-2">
             <HealthDot tone={d.infrastructure.dbConnected ? "ok" : "bad"} />
-            <span className={d.infrastructure.dbConnected ? "text-emerald-800" : "text-rose-800"}>{d.infrastructure.dbConnected ? "متصل" : "قطع — پاسخگو نیست"}</span>
+            <span className={d.infrastructure.dbConnected ? "text-emerald-800 dark:text-emerald-300" : "text-rose-800"}>{d.infrastructure.dbConnected ? "متصل" : "قطع — پاسخگو نیست"}</span>
           </div>
           <div className="text-[11px] text-muted-foreground">زمان سرور: {faDateTime(d.infrastructure.serverTime)}</div>
         </HealthCard>
 
         <HealthCard
           tone={assistantTone}
-          icon={<Sparkles className="h-4 w-4 text-amber-600" />}
+          icon={<Sparkles className="h-4 w-4 text-amber-600 dark:text-amber-400" />}
           title="وضعیت دستیار هوشمند"
-          sub={d.assistant.lastErrorAt ? <span className="text-amber-800">آخرین خطای ثبت‌شده: {faDateTime(d.assistant.lastErrorAt)}</span> : "خطای اخیری ثبت نشده است"}
+          sub={d.assistant.lastErrorAt ? <span className="text-amber-800 dark:text-amber-300">آخرین خطای ثبت‌شده: {faDateTime(d.assistant.lastErrorAt)}</span> : "خطای اخیری ثبت نشده است"}
         >
           <div className="flex items-center gap-2">
             <HealthDot tone={assistantTone} />
@@ -1023,7 +1023,7 @@ function HealthTab({ canManage }: { canManage: boolean }) {
 
         <HealthCard
           tone={d.notifications.pendingQuiet > 0 ? "warn" : "ok"}
-          icon={<Bell className={cn("h-4 w-4", d.notifications.pendingQuiet > 0 ? "text-amber-600" : "text-emerald-600")} />}
+          icon={<Bell className={cn("h-4 w-4", d.notifications.pendingQuiet > 0 ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400")} />}
           title="اعلان‌های در صف نمایش"
           sub="اعلان‌های درون‌برنامه‌ای ثبت‌شده که هنوز به کاربران نمایش داده نشده‌اند (از جمله موارد نگه‌داشته‌شده در ساعات سکوت)"
         >
@@ -1043,10 +1043,10 @@ function HealthTab({ canManage }: { canManage: boolean }) {
           title="مدل اولویت‌بندی فعال"
           sub={d.priorityModel.note}
         >
-          <div className="text-[11px] font-mono text-slate-600 mb-2" dir="ltr">{d.priorityModel.version}</div>
+          <div className="text-[11px] font-mono text-muted-foreground mb-2" dir="ltr">{d.priorityModel.version}</div>
           <div className="flex flex-wrap gap-1.5">
             {Object.entries(d.priorityModel.weights ?? {}).map(([k, v]) => (
-              <Badge key={k} variant="outline" className="text-[10px] bg-white/70">{WEIGHT_LABELS[k] ?? k}: {faNum(v)}٪</Badge>
+              <Badge key={k} variant="outline" className="text-[10px] bg-card/70">{WEIGHT_LABELS[k] ?? k}: {faNum(v)}٪</Badge>
             ))}
           </div>
         </HealthCard>
@@ -1054,7 +1054,7 @@ function HealthTab({ canManage }: { canManage: boolean }) {
         {/* جدول اجراهای اخیر */}
         <Card className="border">
           <CardContent className="p-4">
-            <div className="text-sm font-medium flex items-center gap-2 mb-3"><History className="h-4 w-4 text-slate-500" /> ۱۰ اجرای اخیر زمان‌بند</div>
+            <div className="text-sm font-medium flex items-center gap-2 mb-3"><History className="h-4 w-4 text-muted-foreground" /> ۱۰ اجرای اخیر زمان‌بند</div>
             {d.scheduler.recentRuns.length === 0 ? (
               <div className="text-xs text-muted-foreground py-6 text-center">هیچ اجرایی ثبت نشده است.</div>
             ) : (
@@ -1079,7 +1079,7 @@ function HealthTab({ canManage }: { canManage: boolean }) {
                         <TableCell><RunStatusChip status={r.status} /></TableCell>
                         <TableCell className="text-xs text-center">{faNum(r.created)}</TableCell>
                         <TableCell className="text-xs text-center">{faNum(r.skipped)}</TableCell>
-                        <TableCell className={cn("text-xs text-center", r.failed > 0 && "text-rose-700 font-medium")}>{faNum(r.failed)}</TableCell>
+                        <TableCell className={cn("text-xs text-center", r.failed > 0 && "text-rose-700 dark:text-rose-400 font-medium")}>{faNum(r.failed)}</TableCell>
                         <TableCell className="text-xs whitespace-nowrap">{fmtDuration(r.durationMs)}</TableCell>
                       </TableRow>
                     ))}

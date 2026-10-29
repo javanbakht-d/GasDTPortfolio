@@ -33,9 +33,9 @@ export default function Home() {
 
   if (!authReady && !checked) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50" dir="rtl">
+      <div className="min-h-screen flex items-center justify-center bg-muted/60" dir="rtl">
         <div className="flex flex-col items-center gap-3 text-muted-foreground">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-700" />
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-700 dark:text-emerald-400" />
           <span className="text-sm">در حال بررسی نشست…</span>
         </div>
       </div>

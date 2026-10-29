@@ -285,3 +285,24 @@ Work Log:
 Stage Summary:
 - ریپو https://github.com/javanbakht-d/GasDTPortfolio آماده Import در Vercel
 - کاربر می‌تواند راهنمای docs/deploy-guide.md را از گام ۱ (Neon) اجرا کند
+
+---
+Task ID: ui-operational
+Agent: Z.ai Code (main)
+Task: عملیاتی‌سازی UI — صفحه ورود حرفه‌ای بدون حساب نمونه، تم روشن/تاریک، پالت جذاب، رمز ادمین قوی
+
+Work Log:
+- globals.css: پالت جدید (فیروزه‌ای/زمردی + کهربایی)، پس‌زمینه تم‌دار روشن/تاریک، اسکرول‌بار سازگار با تم، ::selection
+- providers.tsx: ThemeProvider (next-themes، attribute=class، defaultTheme=system)
+- theme-toggle.tsx: کلید تعویض تم (CSS-only، بدون hydration mismatch، پاس‌خور لینت react-hooks)
+- login-screen.tsx: بازطراحی کامل — پنل برند گرادیانی با لوگو/ویژگی‌ها/امضای طراح، فرم با آیکون‌ها، حذف کامل باکس حساب‌های نمونه، کلید تم
+- sed نظام‌مند: ۲۴۳ کلاس hard-code (bg-white/slate/text-slate/border-slate + emerald/amber/rose بدون dark variant) → توکن‌های تم + dark variants؛ اصلاح ۲۴ شکستگی ناشی از الگوهای تودرتو (bg-*-500→/400، /40/NN، muted/600)
+- shell.tsx: هدر شیشه‌ای (backdrop-blur)، کلید تم در هدر، آیتم فعال سایدبار bg-white/10
+- seed-core.ts: کاربران نمونه به‌صورت پیش‌فرض isActive=false (فقط admin فعال) — برای استقرار عملیاتی
+- bootstrap route: پیام demoCredentials به‌روز شد (فقط admin فعال)
+- DB زنده: رمز قوی جدید admin (تحویل در چت)، ۷ حساب نمونه غیرفعال، ۱۴ نشست پاک، AuditLog ثبت شد
+- آزمون: ورود admin 200، ورود حساب غیرفعال 401، لینت 0 خطا، مرورگر: ورود/داشبورد/اقدامات در هر دو تم
+
+Stage Summary:
+- اپ زنده (سندباکس) به‌روز و سالم؛ آماده push به GitHub
+- رمز ادمین در هیچ فایل/کدی ذخیره نشد — فقط در چت تحویل شد

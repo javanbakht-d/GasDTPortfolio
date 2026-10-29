@@ -92,11 +92,11 @@ export function UsersModule() {
           </CardContent></Card>
           <Card><CardContent className="p-4">
             <div className="text-xs text-muted-foreground">فعال</div>
-            <div className="text-2xl font-bold mt-1 text-emerald-700">{faNum(activeCount)}</div>
+            <div className="text-2xl font-bold mt-1 text-emerald-700 dark:text-emerald-400">{faNum(activeCount)}</div>
           </CardContent></Card>
           <Card><CardContent className="p-4">
             <div className="text-xs text-muted-foreground">غیرفعال</div>
-            <div className="text-2xl font-bold mt-1 text-slate-500">{faNum(users.length - activeCount)}</div>
+            <div className="text-2xl font-bold mt-1 text-muted-foreground">{faNum(users.length - activeCount)}</div>
           </CardContent></Card>
         </div>
       )}
@@ -134,9 +134,9 @@ export function UsersModule() {
                       <TableCell className="text-xs">{u.orgUnit?.name ?? "—"}</TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1 max-w-64">
-                          {u.roles.length === 0 && <span className="text-xs text-slate-400">—</span>}
+                          {u.roles.length === 0 && <span className="text-xs text-muted-foreground/80">—</span>}
                           {u.roles.map((r) => (
-                            <Badge key={r.key} variant="outline" className="text-[10px] bg-slate-50">{r.name}</Badge>
+                            <Badge key={r.key} variant="outline" className="text-[10px] bg-muted/60">{r.name}</Badge>
                           ))}
                         </div>
                       </TableCell>
@@ -152,7 +152,7 @@ export function UsersModule() {
                         />
                         {u.id === me?.id && <div className="text-[10px] text-muted-foreground mt-1">غیرفعال‌سازی حساب خودتان مجاز نیست</div>}
                       </TableCell>
-                      <TableCell className="text-xs whitespace-nowrap">{u.lastLoginAt ? faDateTime(u.lastLoginAt) : <span className="text-slate-400">—</span>}</TableCell>
+                      <TableCell className="text-xs whitespace-nowrap">{u.lastLoginAt ? faDateTime(u.lastLoginAt) : <span className="text-muted-foreground/80">—</span>}</TableCell>
                       <TableCell>
                         {canManage && (
                           <Button size="sm" variant="ghost" onClick={() => setEditTarget(u)}><Pencil className="h-3.5 w-3.5" /></Button>
@@ -174,7 +174,7 @@ export function UsersModule() {
       <AlertDialog open={!!deactivateTarget} onOpenChange={(v) => !v && setDeactivateTarget(null)}>
         <AlertDialogContent dir="rtl">
           <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2"><UserX className="h-5 w-5 text-rose-600" /> غیرفعال‌سازی کاربر</AlertDialogTitle>
+            <AlertDialogTitle className="flex items-center gap-2"><UserX className="h-5 w-5 text-rose-600 dark:text-rose-400" /> غیرفعال‌سازی کاربر</AlertDialogTitle>
             <AlertDialogDescription>
               با غیرفعال‌سازی «{deactivateTarget?.fullName}»، همه نشست‌های فعال او بلافاصله خاتمه می‌یابد و امکان ورود مجدد تا فعال‌سازی دوباره وجود ندارد. سوابق و اقدامات او حفظ می‌شود.
             </AlertDialogDescription>
@@ -209,7 +209,7 @@ function RolesChecklist({ roles, selected, onChange, disabled }: {
   return (
     <div className="max-h-48 overflow-y-auto rounded-lg border divide-y">
       {roles.map((r) => (
-        <label key={r.key} className={`flex items-start gap-2.5 px-3 py-2 cursor-pointer hover:bg-slate-50 ${disabled ? "opacity-60 cursor-not-allowed" : ""}`}>
+        <label key={r.key} className={`flex items-start gap-2.5 px-3 py-2 cursor-pointer hover:bg-muted/60 ${disabled ? "opacity-60 cursor-not-allowed" : ""}`}>
           <Checkbox checked={selected.includes(r.key)} onCheckedChange={() => toggle(r.key)} className="mt-0.5" disabled={disabled} />
           <div className="min-w-0">
             <div className="text-xs font-medium leading-5">{r.name}</div>
@@ -386,13 +386,13 @@ function EditUserDialog({ user, meId, onClose }: { user: UserRow; meId: string |
               <div className="space-y-1.5">
                 <Label htmlFor="eu-pass">بازنشانی گذرواژه</Label>
                 <Input id="eu-pass" type="password" dir="ltr" value={form.password} onChange={(e) => set("password", e.target.value)} placeholder="برای تغییر، گذرواژه جدید (≥۸)" className="font-mono" />
-                {form.password && form.password.length < 8 && <div className="text-[10px] text-rose-600">گذرواژه باید حداقل ۸ نویسه باشد.</div>}
+                {form.password && form.password.length < 8 && <div className="text-[10px] text-rose-600 dark:text-rose-400">گذرواژه باید حداقل ۸ نویسه باشد.</div>}
               </div>
               <div className="space-y-1.5">
                 <Label>وضعیت حساب</Label>
                 <div className="flex items-center gap-2 h-9">
                   {user.isActive ? (
-                    <Button type="button" size="sm" variant="outline" className="text-rose-700 border-rose-200 hover:bg-rose-50" disabled={isSelf}
+                    <Button type="button" size="sm" variant="outline" className="text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-900 hover:bg-rose-50 dark:bg-rose-950/40" disabled={isSelf}
                       onClick={() => setConfirmDeactivate(true)}>
                       <UserX className="h-3.5 w-3.5 ml-1" /> غیرفعال‌سازی حساب
                     </Button>
@@ -407,7 +407,7 @@ function EditUserDialog({ user, meId, onClose }: { user: UserRow; meId: string |
               <Label>نقش‌ها</Label>
               <RolesChecklist roles={rolesQ.data?.roles ?? []} selected={roleKeys} onChange={setRoleKeys} />
             </div>
-            <div className="rounded-lg bg-slate-50 border p-2.5 text-[11px] text-muted-foreground flex gap-2 leading-4">
+            <div className="rounded-lg bg-muted/60 border p-2.5 text-[11px] text-muted-foreground flex gap-2 leading-4">
               <Info className="h-3.5 w-3.5 shrink-0 mt-0.5" />
               تغییر نقش‌ها از ورود بعدی کاربر اعمال می‌شود؛ تغییر وضعیت فعال از جدول به‌صورت فوری اعمال و نشست‌ها خاتمه می‌یابد.
             </div>

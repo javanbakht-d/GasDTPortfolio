@@ -59,9 +59,9 @@ const OBLIGATIONS: { key: keyof OrgUnitRow; label: string; icon: React.ReactNode
 ];
 
 const QUALITY_LABELS: Record<string, { label: string; cls: string }> = {
-  GOOD: { label: "مطلوب", cls: "bg-emerald-50 text-emerald-800 border-emerald-200" },
-  NEEDS_IMPROVEMENT: { label: "نیازمند بهبود", cls: "bg-amber-50 text-amber-800 border-amber-200" },
-  POOR: { label: "ضعیف", cls: "bg-rose-50 text-rose-700 border-rose-200" },
+  GOOD: { label: "مطلوب", cls: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900" },
+  NEEDS_IMPROVEMENT: { label: "نیازمند بهبود", cls: "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-900" },
+  POOR: { label: "ضعیف", cls: "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-900" },
 };
 
 export function GovernanceModule() {
@@ -122,10 +122,10 @@ function DomainsTab() {
       )}
 
       {domains.length > 0 && (
-        <div className="rounded-lg border bg-white max-h-96 overflow-y-auto">
+        <div className="rounded-lg border bg-card max-h-96 overflow-y-auto">
           <Table>
             <TableHeader>
-              <TableRow className="bg-slate-50">
+              <TableRow className="bg-muted/60">
                 <TableHead className="text-right">کد</TableHead>
                 <TableHead className="text-right">نام حوزه</TableHead>
                 <TableHead className="text-right">واحد مالک</TableHead>
@@ -147,8 +147,8 @@ function DomainsTab() {
                       {d.description && <div className="text-xs text-muted-foreground line-clamp-1">{d.description}</div>}
                     </TableCell>
                     <TableCell className="text-xs">{d.ownerUnit?.name ?? "—"}</TableCell>
-                    <TableCell className="text-xs">{d.dataOwnerName ?? <span className="text-amber-700">تعیین نشده</span>}</TableCell>
-                    <TableCell className="text-xs">{d.dataCustodianName ?? <span className="text-amber-700">تعیین نشده</span>}</TableCell>
+                    <TableCell className="text-xs">{d.dataOwnerName ?? <span className="text-amber-700 dark:text-amber-400">تعیین نشده</span>}</TableCell>
+                    <TableCell className="text-xs">{d.dataCustodianName ?? <span className="text-amber-700 dark:text-amber-400">تعیین نشده</span>}</TableCell>
                     <TableCell><Badge variant="outline" className="text-[10px]">{DOC_CLASSIFICATIONS[d.classification] ?? d.classification}</Badge></TableCell>
                     <TableCell>
                       {q ? <Badge className={`border ${q.cls} text-[10px]`}>{q.label}</Badge> : <span className="text-xs text-muted-foreground">—</span>}
@@ -219,7 +219,7 @@ function NewDomainDialog({ onClose }: { onClose: () => void }) {
             <div className="space-y-1.5">
               <Label>واحد مالک</Label>
               <Select value={form.ownerUnitId} onValueChange={(v) => set("ownerUnitId", v)}>
-                <SelectTrigger className="bg-white"><SelectValue placeholder="انتخاب واحد" /></SelectTrigger>
+                <SelectTrigger className="bg-card"><SelectValue placeholder="انتخاب واحد" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">واحد کاربر جاری (پیش‌فرض)</SelectItem>
                   {(unitsData?.units ?? []).map((u) => <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>)}
@@ -229,7 +229,7 @@ function NewDomainDialog({ onClose }: { onClose: () => void }) {
             <div className="space-y-1.5">
               <Label>طبقه‌بندی</Label>
               <Select value={form.classification} onValueChange={(v) => set("classification", v)}>
-                <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="bg-card"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {Object.entries(DOC_CLASSIFICATIONS).map(([k, label]) => <SelectItem key={k} value={k}>{label}</SelectItem>)}
                 </SelectContent>
@@ -278,14 +278,14 @@ function CoverageTab() {
 
   return (
     <div className="space-y-3">
-      <div className="rounded-lg bg-slate-50 border p-3 text-xs text-muted-foreground flex gap-1.5">
+      <div className="rounded-lg bg-muted/60 border p-3 text-xs text-muted-foreground flex gap-1.5">
         <Info className="h-3.5 w-3.5 shrink-0 mt-0.5" />
         شش تعهد اسنادی هر واحد بر پایه فرم‌های استاندارد گام ۲ پایش می‌شود (معرفی رابط، مالک/متولی داده، توجیه داخلی، وضعیت موجود، خودارزیابی بلوغ، فهرست پروژه‌ها). اعتبارسنجی ورودی‌های وضعیت موجود از طریق سازوکار تأیید دبیرخانه (ورودی SUBMITTED | VALIDATED | NEEDS_INFO) انجام می‌گیرد.
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2 text-xs">
-          <Badge className="bg-emerald-50 text-emerald-800 border border-emerald-200">
+          <Badge className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900">
             <CircleCheck className="h-3 w-3 ml-1" /> {faNum(allComplete)} از {faNum(units.length)} واحد هر ۶ تعهد را کامل کرده است
           </Badge>
           {OBLIGATIONS.map((o) => (
@@ -306,11 +306,11 @@ function CoverageTab() {
       {!isLoading && !isError && units.length === 0 && <EmptyState title="واحدی یافت نشد" />}
 
       {units.length > 0 && (
-        <div className="rounded-lg border bg-white max-h-96 overflow-y-auto">
+        <div className="rounded-lg border bg-card max-h-96 overflow-y-auto">
           <Table>
             <TableHeader>
-              <TableRow className="bg-slate-50">
-                <TableHead className="text-right sticky right-0 bg-slate-50 min-w-48">واحد سازمانی</TableHead>
+              <TableRow className="bg-muted/60">
+                <TableHead className="text-right sticky right-0 bg-muted/60 min-w-48">واحد سازمانی</TableHead>
                 <TableHead className="text-right">نوع</TableHead>
                 {OBLIGATIONS.map((o) => (
                   <TableHead key={o.key} className="text-center" title={o.label}>
@@ -324,7 +324,7 @@ function CoverageTab() {
                 const complete = OBLIGATIONS.every((o) => u[o.key] === true);
                 return (
                   <TableRow key={u.id}>
-                    <TableCell className="sticky right-0 bg-white">
+                    <TableCell className="sticky right-0 bg-card">
                       <div className="text-sm font-medium leading-5">{u.name}</div>
                       <div className="text-[10px] text-muted-foreground leading-4">
                         مدیر: {u.managerName ?? "—"}
@@ -338,7 +338,7 @@ function CoverageTab() {
                         <TableCell key={o.key} className="text-center">
                           <span
                             title={`${o.label}: ${done ? "انجام شده" : "انجام نشده"}`}
-                            className={`inline-flex ${done ? "text-emerald-600" : "text-rose-400"}`}
+                            className={`inline-flex ${done ? "text-emerald-600 dark:text-emerald-400" : "text-rose-400"}`}
                           >
                             {done ? <CircleCheck className="h-4.5 w-4.5" /> : <XCircle className="h-4.5 w-4.5" />}
                           </span>
@@ -347,7 +347,7 @@ function CoverageTab() {
                     })}
                     {complete && (
                       <TableCell className="w-1">
-                        <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                        <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                       </TableCell>
                     )}
                   </TableRow>
@@ -386,8 +386,8 @@ function AiAppsTab() {
           <Badge variant="outline">{faNum(apps.length)} کاربرد شناسایی‌شده</Badge>
           {data?.stats && (
             <>
-              <Badge className="bg-rose-50 text-rose-700 border border-rose-200">پرریسک: {faNum(data.stats.highRisk)}</Badge>
-              <Badge className="bg-amber-50 text-amber-800 border border-amber-200">بدون مجوز بهره‌برداری: {faNum(data.stats.withoutOperationApproval)}</Badge>
+              <Badge className="bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-900">پرریسک: {faNum(data.stats.highRisk)}</Badge>
+              <Badge className="bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-900">بدون مجوز بهره‌برداری: {faNum(data.stats.withoutOperationApproval)}</Badge>
             </>
           )}
         </div>
@@ -406,10 +406,10 @@ function AiAppsTab() {
       )}
 
       {apps.length > 0 && (
-        <div className="rounded-lg border bg-white max-h-96 overflow-y-auto">
+        <div className="rounded-lg border bg-card max-h-96 overflow-y-auto">
           <Table>
             <TableHeader>
-              <TableRow className="bg-slate-50">
+              <TableRow className="bg-muted/60">
                 <TableHead className="text-right">کد</TableHead>
                 <TableHead className="text-right">عنوان</TableHead>
                 <TableHead className="text-right">واحد مالک</TableHead>
@@ -428,14 +428,14 @@ function AiAppsTab() {
                   <TableCell className="text-xs">{a.useType ?? "—"}</TableCell>
                   <TableCell><AiStatusBadge status={a.status} /></TableCell>
                   <TableCell>
-                    <Badge className={`border text-[10px] ${a.riskLevel === "HIGH" || a.riskLevel === "CRITICAL" ? "bg-rose-50 text-rose-700 border-rose-200" : a.riskLevel === "MEDIUM" ? "bg-amber-50 text-amber-800 border-amber-200" : "bg-emerald-50 text-emerald-800 border-emerald-200"}`}>
+                    <Badge className={`border text-[10px] ${a.riskLevel === "HIGH" || a.riskLevel === "CRITICAL" ? "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-900" : a.riskLevel === "MEDIUM" ? "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-900" : "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900"}`}>
                       {RISK_LEVELS[a.riskLevel] ?? a.riskLevel}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     {a.isRegisteredForOperation
-                      ? <span className="text-emerald-700 text-xs inline-flex items-center gap-1"><CircleCheck className="h-3.5 w-3.5" /> صادر شده</span>
-                      : <span className="text-amber-700 text-xs inline-flex items-center gap-1"><XCircle className="h-3.5 w-3.5" /> صادر نشده</span>}
+                      ? <span className="text-emerald-700 dark:text-emerald-400 text-xs inline-flex items-center gap-1"><CircleCheck className="h-3.5 w-3.5" /> صادر شده</span>
+                      : <span className="text-amber-700 dark:text-amber-400 text-xs inline-flex items-center gap-1"><XCircle className="h-3.5 w-3.5" /> صادر نشده</span>}
                   </TableCell>
                 </TableRow>
               ))}
@@ -501,7 +501,7 @@ function RegisterAiAppDialog({ onClose }: { onClose: () => void }) {
             <div className="space-y-1.5">
               <Label>نوع کاربرد</Label>
               <Select value={form.useType} onValueChange={(v) => set("useType", v)}>
-                <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="bg-card"><SelectValue /></SelectTrigger>
                 <SelectContent>{USE_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
               </Select>
             </div>
@@ -532,14 +532,14 @@ function RegisterAiAppDialog({ onClose }: { onClose: () => void }) {
             <div className="space-y-1.5">
               <Label>طبقه‌بندی</Label>
               <Select value={form.classification} onValueChange={(v) => set("classification", v)}>
-                <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="bg-card"><SelectValue /></SelectTrigger>
                 <SelectContent>{Object.entries(DOC_CLASSIFICATIONS).map(([k, label]) => <SelectItem key={k} value={k}>{label}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
               <Label>سطح ریسک</Label>
               <Select value={form.riskLevel} onValueChange={(v) => set("riskLevel", v)}>
-                <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="bg-card"><SelectValue /></SelectTrigger>
                 <SelectContent>{Object.entries(RISK_LEVELS).map(([k, label]) => <SelectItem key={k} value={k}>{label}</SelectItem>)}</SelectContent>
               </Select>
             </div>

@@ -68,7 +68,7 @@ export function CalendarModule() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm flex items-center gap-2">
-                <Flag className="h-4 w-4 text-emerald-700" />
+                <Flag className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />
                 خط زمان برنامه — روز صفر تا ۱۲۰ از تاریخ ابلاغ (امروز: روز {faNum(pDay)})
               </CardTitle>
             </CardHeader>
@@ -81,7 +81,7 @@ export function CalendarModule() {
                       {timelineDays.map((d, i) => (
                         <div key={d} className="flex-1 text-center">
                           {(d % 10 === 0 || d === 0) && (
-                            <div className={`text-[9px] ${d === pDay ? "text-emerald-700 font-bold" : "text-muted-foreground"}`}>
+                            <div className={`text-[9px] ${d === pDay ? "text-emerald-700 dark:text-emerald-400 font-bold" : "text-muted-foreground"}`}>
                               {d === 0 ? "روز صفر" : `روز ${faNum(d)}`}
                             </div>
                           )}
@@ -99,9 +99,9 @@ export function CalendarModule() {
                         return (
                           <Tooltip key={a.id}>
                             <TooltipTrigger asChild>
-                              <button onClick={() => openAction(a.id)} className="w-full flex items-center gap-2 text-right hover:bg-slate-50 rounded px-1 py-0.5">
+                              <button onClick={() => openAction(a.id)} className="w-full flex items-center gap-2 text-right hover:bg-muted/60 rounded px-1 py-0.5">
                                 <span className="w-28 shrink-0 text-[10px] font-mono text-muted-foreground truncate">گام {faNum(a.refStep)}</span>
-                                <span className="flex-1 relative h-4 bg-slate-50 rounded gantt-track">
+                                <span className="flex-1 relative h-4 bg-muted/60 rounded gantt-track">
                                   <span
                                     className="absolute top-0.5 h-3 rounded-full"
                                     style={{ left: `${leftPct}%`, width: `${widthPct}%`, background: color }}
@@ -142,15 +142,15 @@ export function CalendarModule() {
                   .map((a) => {
                     const d = daysUntil(a.dueDate);
                     return (
-                      <button key={a.id} onClick={() => openAction(a.id)} className="w-full text-right px-4 py-3 hover:bg-slate-50 flex items-center gap-3">
-                        <div className={`h-2.5 w-2.5 rounded-full shrink-0 ${a.isOverdue ? "bg-rose-500" : a.isDueSoon ? "bg-amber-500" : "bg-slate-300"}`} />
+                      <button key={a.id} onClick={() => openAction(a.id)} className="w-full text-right px-4 py-3 hover:bg-muted/60 flex items-center gap-3">
+                        <div className={`h-2.5 w-2.5 rounded-full shrink-0 ${a.isOverdue ? "bg-rose-500" : a.isDueSoon ? "bg-amber-500" : "bg-muted"}`} />
                         <div className="flex-1 min-w-0">
                           <div className="text-sm font-medium line-clamp-1">گام {faNum(a.refStep)} — {a.title}</div>
                           <div className="text-xs text-muted-foreground">{ACTION_GROUPS.find((g) => g.key === a.groupKey)?.label} · {a.responsibleUnit?.name ?? "دبیرخانه"}</div>
                         </div>
                         <div className="text-left shrink-0">
                           <div className="text-sm font-medium">{faDate(a.dueDate)}</div>
-                          <div className={`text-xs ${a.isOverdue ? "text-rose-600" : a.isDueSoon ? "text-amber-600" : "text-muted-foreground"}`}>
+                          <div className={`text-xs ${a.isOverdue ? "text-rose-600 dark:text-rose-400" : a.isDueSoon ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground"}`}>
                             {d != null && d < 0 ? `${faNum(-d)} روز تأخیر` : `${faNum(d ?? 0)} روز مانده`}
                           </div>
                         </div>
@@ -166,7 +166,7 @@ export function CalendarModule() {
         <TabsContent value="cyclical">
           <div className="grid sm:grid-cols-2 gap-3">
             {continuousActions.map((a) => (
-              <button key={a.id} onClick={() => openAction(a.id)} className="text-right rounded-xl border bg-white p-4 hover:border-emerald-600/40">
+              <button key={a.id} onClick={() => openAction(a.id)} className="text-right rounded-xl border bg-card p-4 hover:border-emerald-600/40">
                 <div className="flex items-center gap-2 mb-1.5">
                   <Badge variant="outline" className="text-[10px]">گام {faNum(a.refStep)}</Badge>
                   <Badge className="bg-teal-50 text-teal-700 border-transparent text-[10px]">چرخه {CYCLES[a.cycleKey ?? ""] ?? "مستمر"}</Badge>
@@ -190,7 +190,7 @@ export function CalendarModule() {
                     </div>
                     <div className="text-xs text-muted-foreground mt-0.5">{m.scheduledAt ? faDateTime(m.scheduledAt) : "زمان‌بندی نشده"}</div>
                   </div>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${m.status === "HELD" ? "bg-emerald-50 text-emerald-700" : m.status === "CANCELED" ? "bg-rose-50 text-rose-700" : "bg-slate-100 text-slate-600"}`}>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${m.status === "HELD" ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400" : m.status === "CANCELED" ? "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400" : "bg-muted text-muted-foreground"}`}>
                     {m.status === "HELD" ? "برگزارشده" : m.status === "CANCELED" ? "لغوشده" : "برنامه‌ریزی‌شده"}
                   </span>
                 </CardContent>

@@ -115,19 +115,19 @@ export function KnowledgeModule() {
           <SectionTitle icon={<ClipboardList className="h-4 w-4" />} title="ابزارهای اجرایی گام ۲ — فرم‌های استاندارد تحویل از واحدها" />
           <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-3">
             {STEP2_TOOLS.map((t) => (
-              <Card key={t.title} className="bg-white">
+              <Card key={t.title} className="bg-card">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm flex items-start gap-2 leading-6">
-                    <span className="text-emerald-700 shrink-0 mt-0.5">{t.icon}</span>
+                    <span className="text-emerald-700 dark:text-emerald-400 shrink-0 mt-0.5">{t.icon}</span>
                     {t.title}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="text-xs space-y-2">
-                  <p className="text-slate-700 leading-5">{t.purpose}</p>
+                  <p className="text-foreground leading-5">{t.purpose}</p>
                   <div className="flex flex-wrap gap-1.5">
                     <Badge variant="outline" className="text-[10px]">مخاطب: {t.target}</Badge>
                   </div>
-                  <div className="rounded-lg bg-slate-50 border p-2 leading-5 text-muted-foreground">خروجی: {t.output}</div>
+                  <div className="rounded-lg bg-muted/60 border p-2 leading-5 text-muted-foreground">خروجی: {t.output}</div>
                 </CardContent>
               </Card>
             ))}
@@ -144,12 +144,12 @@ export function KnowledgeModule() {
         <section>
           <SectionTitle icon={<CalendarClock className="h-4 w-4" />} title="تقویم گزارش‌دهی و مبنای زمانی برنامه" />
           <div className="grid md:grid-cols-2 gap-3">
-            <Card className="bg-white">
+            <Card className="bg-card">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm flex items-center gap-2"><BookOpenText className="h-4 w-4 text-emerald-700" /> گزارش فصلی پایش پیشرفت</CardTitle>
+                <CardTitle className="text-sm flex items-center gap-2"><BookOpenText className="h-4 w-4 text-emerald-700 dark:text-emerald-400" /> گزارش فصلی پایش پیشرفت</CardTitle>
               </CardHeader>
               <CardContent className="text-sm space-y-2">
-                <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-amber-900 font-medium leading-6">
+                <div className="rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 p-3 text-amber-900 dark:text-amber-300 font-medium leading-6">
                   مهلت ارسال: حداکثر ۱۵ روز پس از پایان هر فصل
                 </div>
                 <p className="text-xs text-muted-foreground leading-5">
@@ -157,12 +157,12 @@ export function KnowledgeModule() {
                 </p>
               </CardContent>
             </Card>
-            <Card className="bg-white">
+            <Card className="bg-card">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm flex items-center gap-2"><Landmark className="h-4 w-4 text-emerald-700" /> تاریخ مبدأ (روز صفر) برنامه</CardTitle>
+                <CardTitle className="text-sm flex items-center gap-2"><Landmark className="h-4 w-4 text-emerald-700 dark:text-emerald-400" /> تاریخ مبدأ (روز صفر) برنامه</CardTitle>
               </CardHeader>
               <CardContent className="text-sm space-y-2">
-                <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-emerald-900 font-medium leading-6">
+                <div className="rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 p-3 text-emerald-900 font-medium leading-6">
                   تاریخ مبدأ فعلی: {baselineDate ? faDate(baselineDate) : "ثبت نشده"}
                 </div>
                 <p className="text-xs text-muted-foreground leading-5">
@@ -176,12 +176,12 @@ export function KnowledgeModule() {
         {/* گروه‌های زمانی ۳۷ گام */}
         <section>
           <SectionTitle icon={<GraduationCap className="h-4 w-4" />} title="گروه‌های زمانی ۳۷ گام سند مرجع" />
-          <Card className="bg-white">
+          <Card className="bg-card">
             <CardContent className="p-4">
               <div className="rounded-lg border max-h-96 overflow-y-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-slate-50">
+                    <TableRow className="bg-muted/60">
                       <TableHead className="text-right">گروه</TableHead>
                       <TableHead className="text-right">گام‌ها</TableHead>
                       <TableHead className="text-right">بازه زمانی از روز صفر</TableHead>
@@ -217,23 +217,23 @@ export function KnowledgeModule() {
         <section>
           <SectionTitle icon={<ShieldAlert className="h-4 w-4" />} title="قواعد حاکمیتی کلیدی (قابل اعمال در سطح سامانه)" />
           <div className="grid md:grid-cols-2 gap-3">
-            <Card className="border-rose-200 bg-rose-50/60">
+            <Card className="border-rose-200 dark:border-rose-900 bg-rose-50/60 dark:bg-rose-950/40">
               <CardContent className="p-4 flex gap-3">
-                <Ban className="h-5 w-5 text-rose-600 shrink-0 mt-0.5" />
+                <Ban className="h-5 w-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
                 <div className="space-y-1">
                   <div className="font-bold text-rose-800 text-sm">بدون ثبت و ارزیابی، بهره‌برداری ممنوع</div>
-                  <p className="text-xs text-rose-700 leading-5">
+                  <p className="text-xs text-rose-700 dark:text-rose-400 leading-5">
                     هیچ کاربرد هوش مصنوعی بدون ثبت در دفتر مرکزی و ثبت نتایج ارزیابی معتبر، مجاز به بهره‌برداری رسمی نیست. کاربردهای پرریسک نیازمند تأیید انسانی مستند هستند (گام ۱۳).
                   </p>
                 </div>
               </CardContent>
             </Card>
-            <Card className="border-amber-200 bg-amber-50/60">
+            <Card className="border-amber-200 dark:border-amber-900 bg-amber-50/60 dark:bg-amber-950/40">
               <CardContent className="p-4 flex gap-3">
-                <ShieldAlert className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                <ShieldAlert className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                 <div className="space-y-1">
-                  <div className="font-bold text-amber-900 text-sm">ممنوعیت اقدام موازی خارج از چارچوب</div>
-                  <p className="text-xs text-amber-800 leading-5">
+                  <div className="font-bold text-amber-900 dark:text-amber-300 text-sm">ممنوعیت اقدام موازی خارج از چارچوب</div>
+                  <p className="text-xs text-amber-800 dark:text-amber-300 leading-5">
                     هیچ واحدی مجاز به آغاز پروژه، خرید یا قرارداد مرتبط با تحول دیجیتال خارج از سبد مصوب شورا نیست؛ تنها استثنا، دریافت مجوز کتبی از مرجع مجاز (فرم درخواست مجوز کتبی) است.
                   </p>
                 </div>
@@ -255,10 +255,10 @@ export function KnowledgeModule() {
             </Card>
           )}
           {issuedDocs.length > 0 && (
-            <div className="rounded-lg border bg-white max-h-96 overflow-y-auto">
+            <div className="rounded-lg border bg-card max-h-96 overflow-y-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-slate-50">
+                  <TableRow className="bg-muted/60">
                     <TableHead className="text-right">کد</TableHead>
                     <TableHead className="text-right">عنوان سند</TableHead>
                     <TableHead className="text-right">نسخه</TableHead>
@@ -275,7 +275,7 @@ export function KnowledgeModule() {
                       <TableCell><DocStatusBadge status={d.status} /></TableCell>
                       <TableCell className="text-xs">
                         {d.fileUrl
-                          ? <a href={d.fileUrl} target="_blank" rel="noreferrer" className="text-emerald-700 underline break-all" dir="ltr">{d.fileUrl}</a>
+                          ? <a href={d.fileUrl} target="_blank" rel="noreferrer" className="text-emerald-700 dark:text-emerald-400 underline break-all" dir="ltr">{d.fileUrl}</a>
                           : <span className="text-muted-foreground">—</span>}
                       </TableCell>
                     </TableRow>
@@ -289,7 +289,7 @@ export function KnowledgeModule() {
         {/* پرسش‌های متداول */}
         <section>
           <SectionTitle icon={<BookOpenText className="h-4 w-4" />} title="پرسش‌های متداول" />
-          <Accordion type="single" collapsible className="bg-white border rounded-xl px-4">
+          <Accordion type="single" collapsible className="bg-card border rounded-xl px-4">
             {FAQ_ITEMS.map((f, i) => (
               <AccordionItem key={i} value={`faq-${i}`}>
                 <AccordionTrigger className="text-sm text-right leading-6">{f.q}</AccordionTrigger>
@@ -305,8 +305,8 @@ export function KnowledgeModule() {
 
 function SectionTitle({ icon, title }: { icon: React.ReactNode; title: string }) {
   return (
-    <h2 className="text-sm font-bold text-slate-800 flex items-center gap-2 mb-3">
-      <span className="text-emerald-700">{icon}</span>
+    <h2 className="text-sm font-bold text-foreground flex items-center gap-2 mb-3">
+      <span className="text-emerald-700 dark:text-emerald-400">{icon}</span>
       {title}
     </h2>
   );

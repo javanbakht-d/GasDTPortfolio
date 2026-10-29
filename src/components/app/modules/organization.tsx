@@ -79,7 +79,7 @@ export function OrganizationModule() {
           </CardContent></Card>
           <Card><CardContent className="p-4">
             <div className="text-xs text-muted-foreground">واحدهای فعال</div>
-            <div className="text-2xl font-bold mt-1 text-emerald-700">{faNum(activeCount)}</div>
+            <div className="text-2xl font-bold mt-1 text-emerald-700 dark:text-emerald-400">{faNum(activeCount)}</div>
           </CardContent></Card>
           <Card><CardContent className="p-4">
             <div className="text-xs text-muted-foreground">پوشش کامل ۶ تعهد</div>
@@ -106,7 +106,7 @@ export function OrganizationModule() {
               <CardContent className="p-4 space-y-3">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-start gap-2 min-w-0">
-                    <div className="h-9 w-9 rounded-lg bg-slate-100 flex items-center justify-center shrink-0"><Building2 className="h-4 w-4 text-slate-600" /></div>
+                    <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center shrink-0"><Building2 className="h-4 w-4 text-muted-foreground" /></div>
                     <div className="min-w-0">
                       <div className="font-medium text-sm leading-6">{u.name}</div>
                       <div className="flex flex-wrap items-center gap-1.5 mt-1 text-xs text-muted-foreground">
@@ -118,8 +118,8 @@ export function OrganizationModule() {
                   </div>
                   <div className="flex flex-col items-end gap-1 shrink-0">
                     <Badge className={
-                      cov === OBLIGATIONS.length ? "bg-emerald-100 text-emerald-800 border-emerald-200" :
-                      cov >= 3 ? "bg-amber-50 text-amber-800 border-amber-200" : "bg-slate-100 text-slate-600 border-slate-200"
+                      cov === OBLIGATIONS.length ? "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900" :
+                      cov >= 3 ? "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-900" : "bg-muted text-muted-foreground border-border"
                     } variant="outline">
                       پوشش تعهدات: {faNum(cov)}/{faNum(OBLIGATIONS.length)}
                     </Badge>
@@ -128,20 +128,20 @@ export function OrganizationModule() {
                 </div>
 
                 <div className="grid sm:grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
-                  <div><span className="text-muted-foreground">مدیر: </span><span className="font-medium">{u.managerName?.trim() || <span className="text-slate-400">— ثبت نشده</span>}</span></div>
-                  <div><span className="text-muted-foreground">رابط تحول: </span><span className="font-medium">{u.dtLiaison?.trim() || <span className="text-slate-400">— ثبت نشده</span>}</span></div>
-                  <div><span className="text-muted-foreground">مالک داده: </span><span className="font-medium">{u.dataOwner?.trim() || <span className="text-slate-400">— ثبت نشده</span>}</span></div>
-                  <div><span className="text-muted-foreground">متولی داده: </span><span className="font-medium">{u.dataCustodian?.trim() || <span className="text-slate-400">— ثبت نشده</span>}</span></div>
+                  <div><span className="text-muted-foreground">مدیر: </span><span className="font-medium">{u.managerName?.trim() || <span className="text-muted-foreground/80">— ثبت نشده</span>}</span></div>
+                  <div><span className="text-muted-foreground">رابط تحول: </span><span className="font-medium">{u.dtLiaison?.trim() || <span className="text-muted-foreground/80">— ثبت نشده</span>}</span></div>
+                  <div><span className="text-muted-foreground">مالک داده: </span><span className="font-medium">{u.dataOwner?.trim() || <span className="text-muted-foreground/80">— ثبت نشده</span>}</span></div>
+                  <div><span className="text-muted-foreground">متولی داده: </span><span className="font-medium">{u.dataCustodian?.trim() || <span className="text-muted-foreground/80">— ثبت نشده</span>}</span></div>
                 </div>
 
-                <div className="rounded-lg border bg-slate-50/60 p-2.5">
-                  <div className="text-[11px] font-medium text-slate-600 mb-2">شش تعهد مستندشده (گام ۱۱)</div>
+                <div className="rounded-lg border bg-muted/60 p-2.5">
+                  <div className="text-[11px] font-medium text-muted-foreground mb-2">شش تعهد مستندشده (گام ۱۱)</div>
                   <div className="grid sm:grid-cols-2 gap-x-3 gap-y-1.5">
                     {OBLIGATIONS.map((o) => {
                       const ok = o.check(u);
                       return (
-                        <div key={o.key} className={`flex items-center gap-1.5 text-[11px] ${ok ? "text-emerald-800" : "text-slate-400"}`}>
-                          {ok ? <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-600" /> : <XCircle className="h-3.5 w-3.5 shrink-0 text-slate-300" />}
+                        <div key={o.key} className={`flex items-center gap-1.5 text-[11px] ${ok ? "text-emerald-800 dark:text-emerald-300" : "text-muted-foreground/80"}`}>
+                          {ok ? <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" /> : <XCircle className="h-3.5 w-3.5 shrink-0 text-slate-300" />}
                           <span className="leading-4">{o.label}</span>
                         </div>
                       );

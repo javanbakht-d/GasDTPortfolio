@@ -52,10 +52,10 @@ export function DashboardModule() {
   const groupData = data.groups.map((g) => ({ ...g, label: ACTION_GROUPS.find((x) => x.key === g.group)?.label ?? g.group }));
 
   const kpiCards = [
-    { label: "کل گام‌های برنامه", value: c.total, icon: ListChecks, sub: "۳۷ گام سند مرجع + اقدامات افزوده", tone: "bg-slate-100 text-slate-700" },
-    { label: "تکمیل‌شده", value: c.completed, icon: CheckCircle2, sub: "تأیید، تکمیل یا بسته‌شده", tone: "bg-emerald-50 text-emerald-700" },
-    { label: "در حال اجرا", value: c.inProgress, icon: TrendingUp, sub: "شامل در حال بررسی و منتظر اطلاعات", tone: "bg-amber-50 text-amber-700" },
-    { label: "معوق", value: c.overdue, icon: AlertOctagon, sub: "گذشته از سررسید بدون بستن", tone: "bg-rose-50 text-rose-700" },
+    { label: "کل گام‌های برنامه", value: c.total, icon: ListChecks, sub: "۳۷ گام سند مرجع + اقدامات افزوده", tone: "bg-muted text-foreground" },
+    { label: "تکمیل‌شده", value: c.completed, icon: CheckCircle2, sub: "تأیید، تکمیل یا بسته‌شده", tone: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400" },
+    { label: "در حال اجرا", value: c.inProgress, icon: TrendingUp, sub: "شامل در حال بررسی و منتظر اطلاعات", tone: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400" },
+    { label: "معوق", value: c.overdue, icon: AlertOctagon, sub: "گذشته از سررسید بدون بستن", tone: "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400" },
   ];
 
   return (
@@ -110,7 +110,7 @@ export function DashboardModule() {
               </div>
               <div className="text-sm space-y-1.5">
                 <div className="flex items-center justify-between gap-6"><span className="text-muted-foreground">درصد تحقق به‌موقع</span><span className="font-bold">{data.percentages.onTimePct != null ? `${faNum(data.percentages.onTimePct)}٪` : "نیازمند داده"}</span></div>
-                <div className="flex items-center justify-between gap-6"><span className="text-muted-foreground">سررسید ۷ روز آینده</span><span className="font-bold text-amber-700">{faNum(c.dueIn7)}</span></div>
+                <div className="flex items-center justify-between gap-6"><span className="text-muted-foreground">سررسید ۷ روز آینده</span><span className="font-bold text-amber-700 dark:text-amber-400">{faNum(c.dueIn7)}</span></div>
                 <div className="flex items-center justify-between gap-6"><span className="text-muted-foreground">سررسید ۳۰ روز آینده</span><span className="font-bold">{faNum(c.dueIn30)}</span></div>
                 <div className="flex items-center justify-between gap-6"><span className="text-muted-foreground">روز جاری برنامه</span><span className="font-bold">{faNum(data.programDay)}</span></div>
               </div>
@@ -124,12 +124,12 @@ export function DashboardModule() {
           <CardContent className="space-y-3">
             {data.milestones.map((m) => (
               <div key={m.label} className="flex items-center gap-3">
-                <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${m.passed ? "bg-emerald-500" : "bg-slate-300"}`} />
+                <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${m.passed ? "bg-emerald-500" : "bg-muted"}`} />
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium line-clamp-1">{m.label}</div>
                   <div className="text-xs text-muted-foreground">روز {faNum(m.day)} — {faDate(m.date)}</div>
                 </div>
-                <span className={`text-xs px-2 py-0.5 rounded-full ${m.passed ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"}`}>
+                <span className={`text-xs px-2 py-0.5 rounded-full ${m.passed ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400" : "bg-muted text-muted-foreground"}`}>
                   {m.passed ? "گذشته" : "پیش‌رو"}
                 </span>
               </div>
@@ -213,7 +213,7 @@ export function DashboardModule() {
                   <div className="flex justify-between"><span className="text-muted-foreground">ابلاغ‌شده</span><b>{faNum(data.docStatus.issued)}</b></div>
                   <div className="flex justify-between"><span className="text-muted-foreground">در بررسی</span><b>{faNum(data.docStatus.inReview)}</b></div>
                   <div className="flex justify-between"><span className="text-muted-foreground">پیش‌نویس</span><b>{faNum(data.docStatus.draft)}</b></div>
-                  <div className="flex justify-between text-amber-700"><span>نیازمند بارگذاری نسخه رسمی</span><b>{faNum(data.docStatus.needsUpload)}</b></div>
+                  <div className="flex justify-between text-amber-700 dark:text-amber-400"><span>نیازمند بارگذاری نسخه رسمی</span><b>{faNum(data.docStatus.needsUpload)}</b></div>
                 </div>
               </CardContent>
             </Card>
@@ -223,8 +223,8 @@ export function DashboardModule() {
                 <div className="space-y-1.5 text-sm">
                   <div className="flex justify-between"><span className="text-muted-foreground">ثبت‌شده در دفتر</span><b>{faNum(data.aiStatus.total)}</b></div>
                   <div className="flex justify-between"><span className="text-muted-foreground">عملیاتی</span><b>{faNum(data.aiStatus.operational)}</b></div>
-                  <div className="flex justify-between text-amber-700"><span>فاقد ارزیابی معتبر</span><b>{faNum(data.aiStatus.notAssessed)}</b></div>
-                  <div className="flex justify-between text-rose-700"><span>ریسک بالا بدون مجوز بهره‌برداری</span><b>{faNum(data.aiStatus.withoutOperationApproval)}</b></div>
+                  <div className="flex justify-between text-amber-700 dark:text-amber-400"><span>فاقد ارزیابی معتبر</span><b>{faNum(data.aiStatus.notAssessed)}</b></div>
+                  <div className="flex justify-between text-rose-700 dark:text-rose-400"><span>ریسک بالا بدون مجوز بهره‌برداری</span><b>{faNum(data.aiStatus.withoutOperationApproval)}</b></div>
                 </div>
               </CardContent>
             </Card>
@@ -244,9 +244,9 @@ export function DashboardModule() {
                 <div className="flex items-center gap-2 text-sm font-medium mb-3"><ShieldAlert className="h-4 w-4 text-teal-700" /> ریسک‌ها و مصوبات</div>
                 <div className="space-y-1.5 text-sm">
                   <div className="flex justify-between"><span className="text-muted-foreground">ریسک باز</span><b>{faNum(data.riskStatus.open)}</b></div>
-                  <div className="flex justify-between text-rose-700"><span>ریسک شدید (امتیاز ≥۱۵)</span><b>{faNum(data.riskStatus.high)}</b></div>
+                  <div className="flex justify-between text-rose-700 dark:text-rose-400"><span>ریسک شدید (امتیاز ≥۱۵)</span><b>{faNum(data.riskStatus.high)}</b></div>
                   <div className="flex justify-between"><span className="text-muted-foreground">مصوبات در انتظار اقدام</span><b>{faNum(data.decisionStatus.pending)}</b></div>
-                  <div className="flex justify-between text-rose-700"><span>مصوبات معوق</span><b>{faNum(data.decisionStatus.overdue)}</b></div>
+                  <div className="flex justify-between text-rose-700 dark:text-rose-400"><span>مصوبات معوق</span><b>{faNum(data.decisionStatus.overdue)}</b></div>
                 </div>
               </CardContent>
             </Card>

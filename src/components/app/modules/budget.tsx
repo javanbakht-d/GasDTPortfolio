@@ -31,8 +31,8 @@ const CATEGORIES: Record<string, string> = {
 };
 const STATUSES: Record<string, { label: string; color: string }> = {
   DRAFT: { label: "پیش‌نویس", color: "bg-stone-100 text-stone-700 border-stone-200" },
-  SUBMITTED: { label: "ارسال‌شده", color: "bg-amber-50 text-amber-800 border-amber-200" },
-  CONFIRMED: { label: "تأییدشده", color: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+  SUBMITTED: { label: "ارسال‌شده", color: "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-900" },
+  CONFIRMED: { label: "تأییدشده", color: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900" },
 };
 
 export function BudgetModule() {
@@ -58,7 +58,7 @@ export function BudgetModule() {
         )}
       </ModuleHeader>
 
-      <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900 flex gap-2 leading-5 mb-5">
+      <div className="rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 p-3 text-xs text-amber-900 dark:text-amber-300 flex gap-2 leading-5 mb-5">
         <Info className="h-4 w-4 shrink-0 mt-0.5" />
         <span>
           مبالغ این بخش <b>برآورد متنی</b> هستند؛ تا تکمیل چرخه رسمی بودجه سال ۱۴۰۶ (گام ۲۹) رقم قطعی ثبت نمی‌شود و به‌همین دلیل <b>جمع ریالی نمایش داده نمی‌شود</b> — ثبت عدد ساختگی ممنوع است.
@@ -82,12 +82,12 @@ export function BudgetModule() {
           <div key={year} className="mb-6">
             <div className="flex flex-wrap items-center gap-2 mb-3">
               <div className="flex items-center gap-2">
-                <Wallet className="h-4 w-4 text-emerald-700" />
+                <Wallet className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />
                 <span className="font-bold text-sm">سال {faNum(year)}</span>
               </div>
               <Badge variant="outline">{faNum(yearItems.length)} قلم</Badge>
               {catCounts.map((c) => (
-                <Badge key={c.k} variant="outline" className="text-[10px] bg-slate-50">{c.label}: {faNum(c.n)}</Badge>
+                <Badge key={c.k} variant="outline" className="text-[10px] bg-muted/60">{c.label}: {faNum(c.n)}</Badge>
               ))}
             </div>
             <Card>
@@ -113,12 +113,12 @@ export function BudgetModule() {
                           <TableRow key={i.id}>
                             <TableCell className="text-xs font-medium max-w-56"><div className="truncate" title={i.title}>{i.title}</div></TableCell>
                             <TableCell className="text-xs">{CATEGORIES[i.category] ?? i.category}</TableCell>
-                            <TableCell className="text-xs">{i.amountEstimate?.trim() || <span className="text-slate-400">—</span>}</TableCell>
-                            <TableCell className="text-xs">{i.unit?.trim() || <span className="text-slate-400">—</span>}</TableCell>
+                            <TableCell className="text-xs">{i.amountEstimate?.trim() || <span className="text-muted-foreground/80">—</span>}</TableCell>
+                            <TableCell className="text-xs">{i.unit?.trim() || <span className="text-muted-foreground/80">—</span>}</TableCell>
                             <TableCell>
                               <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${st?.color ?? ""}`}>{st?.label ?? i.status}</span>
                             </TableCell>
-                            <TableCell className="text-xs">{i.documentRef?.trim() || <span className="text-slate-400">—</span>}</TableCell>
+                            <TableCell className="text-xs">{i.documentRef?.trim() || <span className="text-muted-foreground/80">—</span>}</TableCell>
                             <TableCell className="text-xs">{i.refStep != null ? faNum(i.refStep) : "—"}</TableCell>
                             <TableCell className="text-xs text-muted-foreground max-w-48"><div className="truncate" title={i.notes ?? ""}>{i.notes?.trim() || "—"}</div></TableCell>
                           </TableRow>

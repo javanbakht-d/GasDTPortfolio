@@ -38,11 +38,11 @@ const MEETING_TYPES: Record<string, string> = { STEERING: "شورای راهبر
 
 const decisionBadge = (s: string) => {
   switch (s) {
-    case "PENDING": return "bg-slate-100 text-slate-700 border-slate-200";
-    case "IN_PROGRESS": return "bg-amber-50 text-amber-800 border-amber-200";
-    case "DONE": return "bg-emerald-50 text-emerald-700 border-emerald-200";
-    case "OVERDUE": return "bg-rose-100 text-rose-800 border-rose-300";
-    default: return "bg-slate-100 text-slate-600 border-slate-200";
+    case "PENDING": return "bg-muted text-foreground border-border";
+    case "IN_PROGRESS": return "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-900";
+    case "DONE": return "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900";
+    case "OVERDUE": return "bg-rose-100 dark:bg-rose-900/40 text-rose-800 border-rose-300";
+    default: return "bg-muted text-muted-foreground border-border";
   }
 };
 
@@ -126,9 +126,9 @@ export function MeetingsModule() {
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
-                          m.status === "HELD" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
-                          m.status === "CANCELED" ? "bg-slate-100 text-slate-500 border-slate-200" :
-                          "bg-amber-50 text-amber-800 border-amber-200"}`}>
+                          m.status === "HELD" ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900" :
+                          m.status === "CANCELED" ? "bg-muted text-muted-foreground border-border" :
+                          "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-900"}`}>
                           {stLabel}
                         </span>
                         {hasPerm("meetings:manage") && (
@@ -140,9 +140,9 @@ export function MeetingsModule() {
                     </div>
 
                     {agenda.length > 0 && (
-                      <div className="rounded-lg border bg-slate-50/60 p-3">
-                        <div className="text-[11px] font-medium text-slate-600 mb-1.5 flex items-center gap-1.5"><ListChecks className="h-3.5 w-3.5" /> دستور جلسه</div>
-                        <ol className="list-decimal pr-5 space-y-0.5 text-xs leading-6 text-slate-700">
+                      <div className="rounded-lg border bg-muted/60 p-3">
+                        <div className="text-[11px] font-medium text-muted-foreground mb-1.5 flex items-center gap-1.5"><ListChecks className="h-3.5 w-3.5" /> دستور جلسه</div>
+                        <ol className="list-decimal pr-5 space-y-0.5 text-xs leading-6 text-foreground">
                           {agenda.map((a, i) => <li key={i}>{a}</li>)}
                         </ol>
                       </div>
@@ -160,7 +160,7 @@ export function MeetingsModule() {
 
                     {m.decisions.length > 0 && (
                       <div className="space-y-1.5">
-                        <div className="text-[11px] font-medium text-slate-600 flex items-center gap-1.5"><Gavel className="h-3.5 w-3.5" /> مصوبات این جلسه ({faNum(m.decisions.length)})</div>
+                        <div className="text-[11px] font-medium text-muted-foreground flex items-center gap-1.5"><Gavel className="h-3.5 w-3.5" /> مصوبات این جلسه ({faNum(m.decisions.length)})</div>
                         {m.decisions.map((d) => (
                           <div key={d.id} className="rounded-lg border p-2.5 text-xs flex items-start justify-between gap-2">
                             <div className="min-w-0">
@@ -192,7 +192,7 @@ export function MeetingsModule() {
           )}
 
           {overdueDecisions.length > 0 && (
-            <div className="rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-800 leading-5">
+            <div className="rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 p-3 text-xs text-rose-800 leading-5">
               {faNum(overdueDecisions.length)} مصوبه از مهلت اجرا گذشته است — نیازمند اقدام جبرانی و گزارش به جلسه بعدی شورا.
             </div>
           )}
@@ -218,14 +218,14 @@ export function MeetingsModule() {
                       {decisions.map((d) => {
                         const overdue = isDecisionOverdue(d);
                         return (
-                          <TableRow key={d.id} className={overdue ? "bg-rose-50/60" : ""}>
+                          <TableRow key={d.id} className={overdue ? "bg-rose-50/60 dark:bg-rose-950/40" : ""}>
                             <TableCell className="font-mono text-[11px]" dir="ltr">{d.code}</TableCell>
                             <TableCell className="text-xs max-w-40">
                               <div className="truncate">{d.meeting ? `جلسه ${d.meeting.number ? faNum(d.meeting.number) : "—"} — ${d.meeting.title}` : "—"}</div>
                             </TableCell>
                             <TableCell className="text-xs max-w-64"><div className="leading-5">{d.content}</div></TableCell>
-                            <TableCell className="text-xs">{d.responsible?.trim() || <span className="text-slate-400">—</span>}</TableCell>
-                            <TableCell className={`text-xs whitespace-nowrap ${overdue ? "text-rose-700 font-medium" : ""}`}>{faDate(d.dueDate)}</TableCell>
+                            <TableCell className="text-xs">{d.responsible?.trim() || <span className="text-muted-foreground/80">—</span>}</TableCell>
+                            <TableCell className={`text-xs whitespace-nowrap ${overdue ? "text-rose-700 dark:text-rose-400 font-medium" : ""}`}>{faDate(d.dueDate)}</TableCell>
                             <TableCell>
                               <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${decisionBadge(d.followUpStatus)}`}>
                                 {DECISION_STATUSES[d.followUpStatus] ?? d.followUpStatus}

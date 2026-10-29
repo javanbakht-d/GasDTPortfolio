@@ -32,17 +32,17 @@ const reportTypeBadge = (t: string) => {
   switch (t) {
     case "MONTHLY": return "bg-teal-50 text-teal-800 border-teal-200";
     case "QUARTERLY": return "bg-violet-50 text-violet-800 border-violet-200";
-    case "90DAY": return "bg-amber-50 text-amber-900 border-amber-300";
-    case "ANNUAL": return "bg-emerald-50 text-emerald-800 border-emerald-200";
-    default: return "bg-slate-100 text-slate-600 border-slate-200";
+    case "90DAY": return "bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300 border-amber-300 dark:border-amber-800";
+    case "ANNUAL": return "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900";
+    default: return "bg-muted text-muted-foreground border-border";
   }
 };
 const statusBadge = (s: string) => {
   switch (s) {
     case "DRAFT": return "bg-stone-100 text-stone-700 border-stone-200";
-    case "SUBMITTED": return "bg-amber-50 text-amber-800 border-amber-200";
-    case "FINAL": return "bg-emerald-50 text-emerald-700 border-emerald-200";
-    default: return "bg-slate-100 text-slate-500 border-slate-200";
+    case "SUBMITTED": return "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-900";
+    case "FINAL": return "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900";
+    default: return "bg-muted text-muted-foreground border-border";
   }
 };
 const statusLabel = (s: string) => (s === "DRAFT" ? "پیش‌نویس" : s === "SUBMITTED" ? "ارائه‌شده" : s === "FINAL" ? "نهایی" : s === "NOT_CREATED" ? "ثبت نشده" : s);
@@ -76,26 +76,26 @@ export function ReportsModule() {
         <Card className="mb-5">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-3 text-sm font-medium">
-              <CalendarRange className="h-4 w-4 text-emerald-700" /> تقویم گزارش‌دهی برنامه
+              <CalendarRange className="h-4 w-4 text-emerald-700 dark:text-emerald-400" /> تقویم گزارش‌دهی برنامه
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="rounded-lg border bg-slate-50/60 p-3">
+              <div className="rounded-lg border bg-muted/60 p-3">
                 <div className="text-[11px] text-muted-foreground">گزارش جامع ۹۰روزه</div>
                 <div className="text-sm font-medium mt-1 leading-6">سررسید: روز {faNum(schedule.report90DueDay)} برنامه</div>
                 <div className="mt-1.5">
-                  <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${schedule.report90Status === "NOT_CREATED" ? "bg-amber-50 text-amber-800 border-amber-200" : statusBadge(schedule.report90Status)}`}>
+                  <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${schedule.report90Status === "NOT_CREATED" ? "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-900" : statusBadge(schedule.report90Status)}`}>
                     {statusLabel(schedule.report90Status)}
                   </span>
                 </div>
               </div>
-              <div className="rounded-lg border bg-slate-50/60 p-3">
+              <div className="rounded-lg border bg-muted/60 p-3">
                 <div className="text-[11px] text-muted-foreground">گزارش فصلی (گام ۳۱)</div>
                 <div className="text-sm font-medium mt-1 leading-6">پنجره ثبت: {faNum(schedule.quarterlyWindowDays)} روز پس از پایان هر فصل</div>
                 <div className="text-[11px] text-muted-foreground mt-1.5">در غیر این صورت، تأخیر نیازمند ثبت انحراف است.</div>
               </div>
-              <div className="rounded-lg border bg-slate-50/60 p-3">
+              <div className="rounded-lg border bg-muted/60 p-3">
                 <div className="text-[11px] text-muted-foreground flex items-center gap-1"><Timer className="h-3 w-3" /> روز جاری برنامه</div>
-                <div className="text-2xl font-bold mt-1 text-emerald-700">{faNum(schedule.currentProgramDay)}</div>
+                <div className="text-2xl font-bold mt-1 text-emerald-700 dark:text-emerald-400">{faNum(schedule.currentProgramDay)}</div>
                 <div className="text-[11px] text-muted-foreground mt-0.5">از تاریخ مبنای ابلاغ (روز صفر)</div>
               </div>
             </div>
@@ -183,12 +183,12 @@ function ViewReportDialog({ report, onClose }: { report: ReportRow; onClose: () 
         <ScrollArea className="max-h-[calc(90vh-190px)] px-6 pb-6">
           <div className="space-y-3">
             {report.summary?.trim() && (
-              <div className="rounded-lg bg-slate-50 border p-3 text-xs leading-6 text-slate-700">
+              <div className="rounded-lg bg-muted/60 border p-3 text-xs leading-6 text-foreground">
                 <b>خلاصه مدیریتی:</b> {report.summary}
               </div>
             )}
             {report.content?.trim() ? (
-              <div className="text-sm leading-7 whitespace-pre-wrap text-slate-800">{report.content}</div>
+              <div className="text-sm leading-7 whitespace-pre-wrap text-foreground">{report.content}</div>
             ) : (
               <div className="text-sm text-muted-foreground italic">متن کامل گزارش ثبت نشده است.</div>
             )}

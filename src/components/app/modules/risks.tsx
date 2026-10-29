@@ -44,24 +44,24 @@ const RISK_CATEGORIES: Record<string, string> = {
   ORGANIZATIONAL: "سازمانی", EXTERNAL: "خارجی",
 };
 const RISK_STATUSES: Record<string, { label: string; color: string }> = {
-  OPEN: { label: "باز", color: "bg-rose-50 text-rose-700 border-rose-200" },
-  MONITORING: { label: "در حال پایش", color: "bg-amber-50 text-amber-800 border-amber-200" },
+  OPEN: { label: "باز", color: "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-900" },
+  MONITORING: { label: "در حال پایش", color: "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-900" },
   MITIGATED: { label: "کاهش‌یافته", color: "bg-teal-50 text-teal-800 border-teal-200" },
-  CLOSED: { label: "بسته‌شده", color: "bg-slate-100 text-slate-600 border-slate-200" },
+  CLOSED: { label: "بسته‌شده", color: "bg-muted text-muted-foreground border-border" },
 };
 const RELATED_TYPES: Record<string, string> = { ACTION: "اقدام", PROJECT: "پروژه", DOCUMENT: "سند", GENERAL: "عمومی" };
 const DEV_STATUSES: Record<string, { label: string; color: string }> = {
-  OPEN: { label: "باز", color: "bg-rose-50 text-rose-700 border-rose-200" },
-  REMEDIAL_IN_PROGRESS: { label: "در حال اقدام جبرانی", color: "bg-amber-50 text-amber-800 border-amber-200" },
+  OPEN: { label: "باز", color: "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-900" },
+  REMEDIAL_IN_PROGRESS: { label: "در حال اقدام جبرانی", color: "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-900" },
   RESOLVED: { label: "رفع‌شده", color: "bg-teal-50 text-teal-800 border-teal-200" },
-  CLOSED: { label: "بسته‌شده", color: "bg-slate-100 text-slate-600 border-slate-200" },
+  CLOSED: { label: "بسته‌شده", color: "bg-muted text-muted-foreground border-border" },
 };
 
 const scoreBand = (score: number) =>
-  score >= 15 ? { label: "بحرانی", cls: "bg-rose-100 text-rose-800 border-rose-300", cell: "bg-rose-100/80" } :
+  score >= 15 ? { label: "بحرانی", cls: "bg-rose-100 dark:bg-rose-900/40 text-rose-800 border-rose-300", cell: "bg-rose-100/80 dark:bg-rose-900/40" } :
   score >= 10 ? { label: "زیاد", cls: "bg-orange-100 text-orange-800 border-orange-300", cell: "bg-orange-100/70" } :
-  score >= 5 ? { label: "متوسط", cls: "bg-amber-100 text-amber-800 border-amber-300", cell: "bg-amber-100/70" } :
-  { label: "کم", cls: "bg-emerald-50 text-emerald-800 border-emerald-200", cell: "bg-emerald-50/80" };
+  score >= 5 ? { label: "متوسط", cls: "bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800", cell: "bg-amber-100/70 dark:bg-amber-900/40" } :
+  { label: "کم", cls: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900", cell: "bg-emerald-50/80 dark:bg-emerald-950/40" };
 
 export function RisksModule() {
   const hasPerm = useAppStore((s) => s.hasPerm);
@@ -117,7 +117,7 @@ export function RisksModule() {
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-2 mb-3 text-sm font-medium">
-                <Grid3X3 className="h-4 w-4 text-emerald-700" /> ماتریس ریسک — احتمال × اثر ({faNum(openRisks.length)} ریسک باز)
+                <Grid3X3 className="h-4 w-4 text-emerald-700 dark:text-emerald-400" /> ماتریس ریسک — احتمال × اثر ({faNum(openRisks.length)} ریسک باز)
               </div>
               <div className="overflow-x-auto">
                 <div className="inline-grid gap-1 min-w-[480px]" style={{ gridTemplateColumns: "3rem repeat(5, minmax(4.2rem, 1fr))" }}>
@@ -134,7 +134,7 @@ export function RisksModule() {
                         const count = matrix[`${prob}-${imp}`] ?? 0;
                         return (
                           <div key={imp} title={`احتمال ${prob} × اثر ${imp} — ${band.label}`}
-                            className={`h-11 rounded-md border border-white flex items-center justify-center text-sm font-bold ${band.cell} ${count > 0 ? "ring-2 ring-slate-700/70 text-slate-900" : "text-slate-400"}`}>
+                            className={`h-11 rounded-md border border-white flex items-center justify-center text-sm font-bold ${band.cell} ${count > 0 ? "ring-2 ring-slate-700/70 text-foreground" : "text-muted-foreground/80"}`}>
                             {count > 0 ? faNum(count) : "·"}
                           </div>
                         );
@@ -144,11 +144,11 @@ export function RisksModule() {
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-3 mt-3 text-[11px] text-muted-foreground">
-                <span className="flex items-center gap-1"><span className="h-3 w-4 rounded bg-emerald-50 border border-emerald-200" /> کم (۱–۴)</span>
-                <span className="flex items-center gap-1"><span className="h-3 w-4 rounded bg-amber-100 border border-amber-300" /> متوسط (۵–۹)</span>
+                <span className="flex items-center gap-1"><span className="h-3 w-4 rounded bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900" /> کم (۱–۴)</span>
+                <span className="flex items-center gap-1"><span className="h-3 w-4 rounded bg-amber-100 dark:bg-amber-900/40 border border-amber-300 dark:border-amber-800" /> متوسط (۵–۹)</span>
                 <span className="flex items-center gap-1"><span className="h-3 w-4 rounded bg-orange-100 border border-orange-300" /> زیاد (۱۰–۱۴)</span>
-                <span className="flex items-center gap-1"><span className="h-3 w-4 rounded bg-rose-100 border border-rose-300" /> بحرانی (۱۵–۲۵)</span>
-                {critical.length > 0 && <span className="text-rose-700 font-medium">· {faNum(critical.length)} ریسک بحرانی باز</span>}
+                <span className="flex items-center gap-1"><span className="h-3 w-4 rounded bg-rose-100 dark:bg-rose-900/40 border border-rose-300" /> بحرانی (۱۵–۲۵)</span>
+                {critical.length > 0 && <span className="text-rose-700 dark:text-rose-400 font-medium">· {faNum(critical.length)} ریسک بحرانی باز</span>}
               </div>
             </CardContent>
           </Card>
@@ -185,7 +185,7 @@ export function RisksModule() {
                         const band = scoreBand(score);
                         const st = RISK_STATUSES[r.status];
                         return (
-                          <TableRow key={r.id} className={r.status !== "CLOSED" && score >= 15 ? "bg-rose-50/50" : ""}>
+                          <TableRow key={r.id} className={r.status !== "CLOSED" && score >= 15 ? "bg-rose-50/50 dark:bg-rose-950/40" : ""}>
                             <TableCell className="font-mono text-[11px]" dir="ltr">{r.code}</TableCell>
                             <TableCell className="max-w-52"><div className="truncate text-xs" title={r.title}>{r.title}</div></TableCell>
                             <TableCell className="text-xs">{RISK_CATEGORIES[r.category] ?? r.category}</TableCell>
@@ -197,7 +197,7 @@ export function RisksModule() {
                             <TableCell className="text-center">
                               <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-bold ${band.cls}`}>{faNum(score)}</span>
                             </TableCell>
-                            <TableCell className="text-xs">{r.owner?.trim() || <span className="text-slate-400">—</span>}</TableCell>
+                            <TableCell className="text-xs">{r.owner?.trim() || <span className="text-muted-foreground/80">—</span>}</TableCell>
                             <TableCell>
                               <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${st?.color ?? ""}`}>{st?.label ?? r.status}</span>
                             </TableCell>
@@ -220,7 +220,7 @@ export function RisksModule() {
 
         {/* ─────────── تب انحرافات ─────────── */}
         <TabsContent value="deviations" className="space-y-4">
-          <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900 flex gap-2 leading-5">
+          <div className="rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 p-3 text-xs text-amber-900 dark:text-amber-300 flex gap-2 leading-5">
             <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
             <span>هر انحراف از مهلت باید دارای <b>علت</b>، <b>مسئول</b>، <b>شدت اثر</b> و <b>اقدام جبرانی</b> باشد — ثبت انحراف بدون این چهار رکن پذیرفته نیست.</span>
           </div>
@@ -237,11 +237,11 @@ export function RisksModule() {
               const sev = PRIORITIES[d.severity];
               const overdueRemedial = d.remedialDueDate && d.status !== "RESOLVED" && d.status !== "CLOSED" && new Date(d.remedialDueDate) < new Date();
               return (
-                <Card key={d.id} className={d.status === "OPEN" ? "border-rose-200" : ""}>
+                <Card key={d.id} className={d.status === "OPEN" ? "border-rose-200 dark:border-rose-900" : ""}>
                   <CardContent className="p-4 space-y-2">
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div className="flex items-start gap-2 min-w-0">
-                        <div className="h-8 px-2 rounded-lg bg-slate-100 flex items-center justify-center text-[10px] font-bold shrink-0" dir="ltr">{d.code}</div>
+                        <div className="h-8 px-2 rounded-lg bg-muted flex items-center justify-center text-[10px] font-bold shrink-0" dir="ltr">{d.code}</div>
                         <div className="min-w-0">
                           <div className="text-sm font-medium leading-6">{d.relatedTitle}</div>
                           <div className="text-[11px] text-muted-foreground mt-0.5">
@@ -256,14 +256,14 @@ export function RisksModule() {
                     </div>
                     <div className="grid sm:grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
                       <div className="sm:col-span-2"><span className="text-muted-foreground">علت انحراف: </span><span className="leading-5">{d.cause}</span></div>
-                      <div><span className="text-muted-foreground">مسئول رفع: </span><span className="font-medium">{d.responsible?.trim() || <span className="text-rose-600">— ثبت نشده</span>}</span></div>
+                      <div><span className="text-muted-foreground">مسئول رفع: </span><span className="font-medium">{d.responsible?.trim() || <span className="text-rose-600 dark:text-rose-400">— ثبت نشده</span>}</span></div>
                       <div>
                         <span className="text-muted-foreground">مهلت اقدام جبرانی: </span>
-                        <span className={`font-medium ${overdueRemedial ? "text-rose-600" : ""}`}>{faDate(d.remedialDueDate)}{overdueRemedial ? " (گذشته)" : ""}</span>
+                        <span className={`font-medium ${overdueRemedial ? "text-rose-600 dark:text-rose-400" : ""}`}>{faDate(d.remedialDueDate)}{overdueRemedial ? " (گذشته)" : ""}</span>
                       </div>
                       <div className="sm:col-span-2">
                         <span className="text-muted-foreground">اقدام جبرانی: </span>
-                        {d.remedialAction?.trim() ? <span className="leading-5">{d.remedialAction}</span> : <span className="text-amber-700 font-medium">ثبت نشده — الزامی است</span>}
+                        {d.remedialAction?.trim() ? <span className="leading-5">{d.remedialAction}</span> : <span className="text-amber-700 dark:text-amber-400 font-medium">ثبت نشده — الزامی است</span>}
                       </div>
                     </div>
                     {hasPerm("deviations:manage") && (

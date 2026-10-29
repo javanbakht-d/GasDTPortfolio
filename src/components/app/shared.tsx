@@ -12,7 +12,7 @@ export function ModuleHeader({ title, description, children }: { title: string; 
   return (
     <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
       <div>
-        <h1 className="text-xl font-bold text-slate-900">{title}</h1>
+        <h1 className="text-xl font-bold text-foreground">{title}</h1>
         {description && <p className="text-sm text-muted-foreground mt-1 max-w-3xl leading-6">{description}</p>}
       </div>
       {children && <div className="flex items-center gap-2">{children}</div>}
@@ -84,7 +84,7 @@ export function EmptyState({ title, hint, action }: { title: string; hint?: stri
 
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
-    <Card className="border-rose-200 bg-rose-50/50">
+    <Card className="border-rose-200 dark:border-rose-900 bg-rose-50/50 dark:bg-rose-950/40">
       <CardContent className="flex flex-col items-center justify-center py-10 text-center gap-3">
         <AlertTriangle className="h-8 w-8 text-rose-500" />
         <div className="font-medium text-rose-800">{message}</div>

@@ -88,10 +88,10 @@ export function DocumentsModule() {
       <div className="flex flex-wrap items-center gap-2 mb-4">
         <div className="relative flex-1 min-w-52">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="جست‌وجوی عنوان، کد یا شرح سند…" className="pr-9 bg-white" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="جست‌وجوی عنوان، کد یا شرح سند…" className="pr-9 bg-card" />
         </div>
         <Select value={type} onValueChange={setType}>
-          <SelectTrigger className="w-48 bg-white"><SelectValue placeholder="نوع سند" /></SelectTrigger>
+          <SelectTrigger className="w-48 bg-card"><SelectValue placeholder="نوع سند" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">همه انواع</SelectItem>
             {Object.entries(DOC_TYPES).map(([k, label]) => (
@@ -100,7 +100,7 @@ export function DocumentsModule() {
           </SelectContent>
         </Select>
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="w-44 bg-white"><SelectValue placeholder="وضعیت" /></SelectTrigger>
+          <SelectTrigger className="w-44 bg-card"><SelectValue placeholder="وضعیت" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">همه وضعیت‌ها</SelectItem>
             {Object.entries(DOC_STATUSES).map(([k, v]) => (
@@ -110,7 +110,7 @@ export function DocumentsModule() {
         </Select>
         <span className="text-xs text-muted-foreground">{faNum(filtered.length)} سند</span>
         {needsUploadCount > 0 && (
-          <Badge className="bg-amber-50 text-amber-800 border border-amber-300">
+          <Badge className="bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
             <AlertTriangle className="h-3 w-3 ml-1" /> {faNum(needsUploadCount)} سند نیازمند بارگذاری نسخه رسمی
           </Badge>
         )}
@@ -127,11 +127,11 @@ export function DocumentsModule() {
           <button
             key={d.id}
             onClick={() => setDetailId(d.id)}
-            className={`w-full text-right rounded-xl border bg-white p-4 transition-all hover:shadow-sm hover:border-emerald-600/40 ${d.needsUpload ? "border-amber-300" : ""}`}
+            className={`w-full text-right rounded-xl border bg-card p-4 transition-all hover:shadow-sm hover:border-emerald-600/40 ${d.needsUpload ? "border-amber-300 dark:border-amber-800" : ""}`}
           >
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="flex items-start gap-3 min-w-0 flex-1">
-                <div className="h-9 w-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+                <div className="h-9 w-9 rounded-lg bg-muted text-foreground flex items-center justify-center shrink-0">
                   <FileText className="h-4 w-4" />
                 </div>
                 <div className="min-w-0">
@@ -142,7 +142,7 @@ export function DocumentsModule() {
                     <span>· نسخه {d.version}</span>
                     {d.ownerUnit && <span className="inline-flex items-center gap-1"><Building2 className="h-3 w-3" />{d.ownerUnit.name}</span>}
                     {d.relatedRefStep != null && (
-                      <span className="inline-flex items-center gap-1 text-slate-500"><Link2 className="h-3 w-3" /> گام {faNum(d.relatedRefStep)}</span>
+                      <span className="inline-flex items-center gap-1 text-muted-foreground"><Link2 className="h-3 w-3" /> گام {faNum(d.relatedRefStep)}</span>
                     )}
                   </div>
                 </div>
@@ -157,11 +157,11 @@ export function DocumentsModule() {
                     <span className="inline-flex items-center gap-1"><CalendarClock className="h-3 w-3" /> مهلت مصوبه: روز {faNum(d.approvalDueDay)}</span>
                   )}
                   {d.needsUpload ? (
-                    <span className="text-amber-700 font-medium inline-flex items-center gap-1">
+                    <span className="text-amber-700 dark:text-amber-400 font-medium inline-flex items-center gap-1">
                       <AlertTriangle className="h-3 w-3" /> نیازمند بارگذاری
                     </span>
                   ) : d.fileUrl ? (
-                    <span className="text-emerald-700 inline-flex items-center gap-1"><FileUp className="h-3 w-3" /> فایل رسمی ثبت شده</span>
+                    <span className="text-emerald-700 dark:text-emerald-400 inline-flex items-center gap-1"><FileUp className="h-3 w-3" /> فایل رسمی ثبت شده</span>
                   ) : null}
                 </div>
               </div>
@@ -217,7 +217,7 @@ function NewDocumentDialog({ onClose }: { onClose: () => void }) {
             <div className="space-y-1.5">
               <Label>نوع سند</Label>
               <Select value={docType} onValueChange={setDocType}>
-                <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="bg-card"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {Object.entries(DOC_TYPES).map(([k, label]) => <SelectItem key={k} value={k}>{label}</SelectItem>)}
                 </SelectContent>
@@ -226,7 +226,7 @@ function NewDocumentDialog({ onClose }: { onClose: () => void }) {
             <div className="space-y-1.5">
               <Label>واحد مالک</Label>
               <Select value={ownerUnitId} onValueChange={setOwnerUnitId}>
-                <SelectTrigger className="bg-white"><SelectValue placeholder="انتخاب واحد" /></SelectTrigger>
+                <SelectTrigger className="bg-card"><SelectValue placeholder="انتخاب واحد" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">واحد کاربر جاری (پیش‌فرض)</SelectItem>
                   {(unitsData?.units ?? []).map((u) => <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>)}
@@ -340,22 +340,22 @@ function DocumentDetailDialog({ id, onClose }: { id: string; onClose: () => void
                 {/* مشخصات سند */}
                 <Card>
                   <CardContent className="p-4 space-y-3 text-sm">
-                    <p className="leading-7 text-slate-700 whitespace-pre-wrap">{doc.description || "شرحی برای این سند ثبت نشده است."}</p>
+                    <p className="leading-7 text-foreground whitespace-pre-wrap">{doc.description || "شرحی برای این سند ثبت نشده است."}</p>
                     <Separator />
                     <div className="grid sm:grid-cols-2 gap-3">
-                      <MetaItem icon={<Link2 className="h-4 w-4 text-emerald-700" />} label="مرجع و گام مرتبط">
+                      <MetaItem icon={<Link2 className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />} label="مرجع و گام مرتبط">
                         {doc.sourceRef ?? "—"}{doc.relatedRefStep != null && <> · گام {faNum(doc.relatedRefStep)}</>}
                       </MetaItem>
-                      <MetaItem icon={<CalendarClock className="h-4 w-4 text-emerald-700" />} label="مهلت مصوبه (از روز صفر)">
+                      <MetaItem icon={<CalendarClock className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />} label="مهلت مصوبه (از روز صفر)">
                         {doc.approvalDueDay != null ? `روز ${faNum(doc.approvalDueDay)}` : "—"}
                       </MetaItem>
-                      <MetaItem icon={<History className="h-4 w-4 text-emerald-700" />} label="تاریخ ایجاد">
+                      <MetaItem icon={<History className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />} label="تاریخ ایجاد">
                         {faDateTime(doc.createdAt)}
                       </MetaItem>
-                      <MetaItem icon={<FileUp className="h-4 w-4 text-emerald-700" />} label="فایل رسمی">
+                      <MetaItem icon={<FileUp className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />} label="فایل رسمی">
                         {doc.fileUrl
                           ? <span className="break-all" dir="ltr">{doc.fileUrl}</span>
-                          : <span className={doc.needsUpload ? "text-amber-700 font-medium" : ""}>{doc.needsUpload ? "نیازمند بارگذاری نسخه رسمی" : "ثبت نشده"}</span>}
+                          : <span className={doc.needsUpload ? "text-amber-700 dark:text-amber-400 font-medium" : ""}>{doc.needsUpload ? "نیازمند بارگذاری نسخه رسمی" : "ثبت نشده"}</span>}
                       </MetaItem>
                     </div>
                   </CardContent>
@@ -365,10 +365,10 @@ function DocumentDetailDialog({ id, onClose }: { id: string; onClose: () => void
                 {hasPerm("documents:edit") && isApprovedOrIssued && (
                   <Card>
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-sm flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-amber-600" /> تغییر سند مصوب/ابلاغی فقط با نسخه جدید</CardTitle>
+                      <CardTitle className="text-sm flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" /> تغییر سند مصوب/ابلاغی فقط با نسخه جدید</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-2">
-                      <div className="rounded-lg bg-amber-50 border border-amber-200 p-2.5 text-xs text-amber-900 flex gap-1.5">
+                      <div className="rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 p-2.5 text-xs text-amber-900 dark:text-amber-300 flex gap-1.5">
                         <Info className="h-3.5 w-3.5 shrink-0 mt-0.5" />
                         هرگونه تغییر در وضعیت، شرح یا فایل رسمی این سند نیازمند شماره نسخه جدید است — نسخه قبلی به‌عنوان «منسوخ» در تاریخچه حفظ می‌شود.
                       </div>
@@ -392,14 +392,14 @@ function DocumentDetailDialog({ id, onClose }: { id: string; onClose: () => void
                           <button
                             key={s}
                             onClick={() => setSelectedStatus(s)}
-                            className={`rounded-lg border px-3 py-1.5 text-xs transition-colors ${selectedStatus === s ? "border-emerald-600 bg-emerald-50 text-emerald-800 font-medium" : "hover:border-slate-300"}`}
+                            className={`rounded-lg border px-3 py-1.5 text-xs transition-colors ${selectedStatus === s ? "border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 font-medium" : "hover:border-border"}`}
                           >
                             {DOC_STATUSES[s]?.label ?? s}
                           </button>
                         ))}
                       </div>
                       {needsApprovePerm && (
-                        <div className={`rounded-lg p-2.5 text-xs flex gap-1.5 ${hasPerm("documents:approve") ? "bg-teal-50 border border-teal-200 text-teal-900" : "bg-rose-50 border border-rose-200 text-rose-800"}`}>
+                        <div className={`rounded-lg p-2.5 text-xs flex gap-1.5 ${hasPerm("documents:approve") ? "bg-teal-50 border border-teal-200 text-teal-900" : "bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-800"}`}>
                           <ShieldCheck className="h-3.5 w-3.5 shrink-0 mt-0.5" />
                           {hasPerm("documents:approve")
                             ? "تصویب/ابلاغ با نقش مجاز شما امکان‌پذیر است و در ردپای تغییرات ثبت می‌شود."
@@ -407,7 +407,7 @@ function DocumentDetailDialog({ id, onClose }: { id: string; onClose: () => void
                         </div>
                       )}
                       {isApprovedOrIssued && (
-                        <div className="rounded-lg bg-amber-50 border border-amber-200 p-2.5 text-xs text-amber-900 flex gap-1.5">
+                        <div className="rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 p-2.5 text-xs text-amber-900 dark:text-amber-300 flex gap-1.5">
                           <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
                           سند مصوب/ابلاغی فقط با ثبت نسخه جدید قابل تغییر است — شماره نسخه جدید را وارد کنید (نسخه قبلی به‌عنوان منسوخ در تاریخچه حفظ می‌شود).
                         </div>
@@ -440,7 +440,7 @@ function DocumentDetailDialog({ id, onClose }: { id: string; onClose: () => void
                         })}>
                         ذخیره شرح
                       </Button>
-                      {isApprovedOrIssued && versionMissing && <div className="text-xs text-amber-700">برای ذخیره، ابتدا شماره نسخه جدید را در کارت بالا وارد کنید.</div>}
+                      {isApprovedOrIssued && versionMissing && <div className="text-xs text-amber-700 dark:text-amber-400">برای ذخیره، ابتدا شماره نسخه جدید را در کارت بالا وارد کنید.</div>}
                     </CardContent>
                   </Card>
                 )}
@@ -452,7 +452,7 @@ function DocumentDetailDialog({ id, onClose }: { id: string; onClose: () => void
                       <CardTitle className="text-sm flex items-center gap-2"><Upload className="h-4 w-4" /> بارگذاری فایل رسمی</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-2">
-                      <div className="rounded-lg bg-slate-50 border p-2.5 text-xs text-muted-foreground flex gap-1.5">
+                      <div className="rounded-lg bg-muted/60 border p-2.5 text-xs text-muted-foreground flex gap-1.5">
                         <Info className="h-3.5 w-3.5 shrink-0 mt-0.5" />
                         زیرساخت بارگذاری مستقیم فایل نیازمند تنظیمات استقرار (ذخیره‌سازی فایل) است؛ در این نسخه نشانی/شناسه فایل رسمی را به‌صورت متن ثبت کنید. ثبت نشانی، هشدار «نیازمند بارگذاری» را رفع می‌کند.
                       </div>
@@ -466,7 +466,7 @@ function DocumentDetailDialog({ id, onClose }: { id: string; onClose: () => void
                           ثبت نشانی فایل
                         </Button>
                       </div>
-                      {isApprovedOrIssued && versionMissing && <div className="text-xs text-amber-700">برای ذخیره، ابتدا شماره نسخه جدید را در کارت بالا وارد کنید.</div>}
+                      {isApprovedOrIssued && versionMissing && <div className="text-xs text-amber-700 dark:text-amber-400">برای ذخیره، ابتدا شماره نسخه جدید را در کارت بالا وارد کنید.</div>}
                     </CardContent>
                   </Card>
                 )}
@@ -483,7 +483,7 @@ function DocumentDetailDialog({ id, onClose }: { id: string; onClose: () => void
                           <Badge variant="outline" className="font-mono text-[10px] shrink-0 mt-0.5">نسخه {v.version}</Badge>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between gap-2">
-                              <span className="text-xs font-medium text-slate-700">{v.summary ?? "—"}</span>
+                              <span className="text-xs font-medium text-foreground">{v.summary ?? "—"}</span>
                               <span className="text-[10px] text-muted-foreground shrink-0">{faDateTime(v.createdAt)}</span>
                             </div>
                             {v.changeNote && <div className="text-xs text-muted-foreground leading-5 mt-0.5">{v.changeNote}</div>}

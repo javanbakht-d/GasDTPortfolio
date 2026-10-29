@@ -15,6 +15,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ModuleRouter } from "@/components/app/module-router";
 import { AiAssistantPanel } from "@/components/app/modules/ai-assistant";
 import { AboutDialog } from "@/components/app/about-dialog";
+import { ThemeToggle } from "@/components/app/theme-toggle";
 import {
   LayoutDashboard, ListChecks, CalendarRange, Building2, FileText, Briefcase,
   Database, Bot, Gauge, ShieldAlert, Gavel, Wallet, FileBarChart2, BookOpen,
@@ -134,7 +135,7 @@ export function Shell() {
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className="min-h-screen flex bg-slate-50" dir="rtl">
+      <div className="min-h-screen flex bg-muted/60" dir="rtl">
         {/* پس‌زمینه منوی موبایل */}
         {mobileNavOpen && (
           <div
@@ -156,13 +157,13 @@ export function Shell() {
         >
           <div className="h-16 flex items-center gap-2.5 px-4 border-b border-slate-800">
             {/* لوگوی رسمی شرکت ملی گاز ایران */}
-            <div className="h-10 w-10 rounded-lg bg-white flex items-center justify-center shrink-0 overflow-hidden">
+            <div className="h-10 w-10 rounded-lg bg-card flex items-center justify-center shrink-0 overflow-hidden">
               <img src="/nigc-logo.png" alt="لوگوی شرکت ملی گاز ایران" className="h-9 w-9 object-contain" />
             </div>
             {!collapsed && (
               <div className="min-w-0">
                 <div className="text-sm font-bold text-white truncate">NIGC-DTG</div>
-                <div className="text-[10px] text-slate-400 truncate">شرکت ملی گاز ایران</div>
+                <div className="text-[10px] text-muted-foreground/80 truncate">شرکت ملی گاز ایران</div>
               </div>
             )}
           </div>
@@ -171,7 +172,7 @@ export function Shell() {
             <nav aria-label="ناوبری اصلی">
               {groups.map((g) => (
                 <div key={g}>
-                  {!collapsed && <div className="px-4 pt-3 pb-1 text-[10px] font-medium text-slate-500">{g}</div>}
+                  {!collapsed && <div className="px-4 pt-3 pb-1 text-[10px] font-medium text-muted-foreground">{g}</div>}
                   {visibleNav.filter((n) => n.group === g).map((item) => {
                     const Icon = item.icon;
                     const active = activeModule === item.key;
@@ -186,11 +187,11 @@ export function Shell() {
                         aria-current={active ? "page" : undefined}
                         className={cn(
                           "w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors text-right",
-                          "hover:bg-slate-800/80 focus-visible:outline focus-visible:outline-amber-400",
-                          active ? "bg-slate-800 text-white border-r-2 border-amber-400" : "text-slate-300"
+                          "hover:bg-secondary/80 focus-visible:outline focus-visible:outline-amber-400",
+                          active ? "bg-white/10 text-white border-r-2 border-amber-400" : "text-slate-300"
                         )}
                       >
-                        <Icon className={cn("shrink-0 h-[18px] w-[18px]", active ? "text-amber-400" : "text-slate-400")} />
+                        <Icon className={cn("shrink-0 h-[18px] w-[18px]", active ? "text-amber-400" : "text-muted-foreground/80")} />
                         {!collapsedNow && <span className="truncate">{item.label}</span>}
                       </button>
                     );
@@ -209,14 +210,14 @@ export function Shell() {
           <div className="p-2 border-t border-slate-800">
             <button
               onClick={() => { setAiOpen(true); setMobileNavOpen(false); }}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800/80 rounded-lg transition-colors"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-300 hover:bg-secondary/80 rounded-lg transition-colors"
             >
               <Sparkles className="h-[18px] w-[18px] text-amber-400" />
               {!collapsed && <span>دستیار هوشمند دبیرخانه</span>}
             </button>
             <button
               onClick={toggleSidebar}
-              className="hidden lg:flex w-full items-center gap-3 px-4 py-2 text-xs text-slate-400 hover:bg-slate-800/80 rounded-lg transition-colors"
+              className="hidden lg:flex w-full items-center gap-3 px-4 py-2 text-xs text-muted-foreground/80 hover:bg-secondary/80 rounded-lg transition-colors"
               aria-label={collapsed ? "بازکردن منو" : "جمع‌کردن منو"}
             >
               {collapsed ? <PanelRightOpen className="h-4 w-4" /> : <PanelRightClose className="h-4 w-4" />}
@@ -228,7 +229,7 @@ export function Shell() {
         {/* بدنه اصلی */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* نوار بالایی */}
-          <header className="h-16 bg-white border-b flex items-center gap-3 lg:gap-4 px-3 lg:px-6 sticky top-0 z-30">
+          <header className="h-16 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/85 border-b flex items-center gap-3 lg:gap-4 px-3 lg:px-6 sticky top-0 z-30">
             {/* دکمه منو در موبایل */}
             <Button
               variant="ghost"
@@ -254,16 +255,16 @@ export function Shell() {
                 onFocus={() => setSearchOpen(true)}
                 onBlur={() => setTimeout(() => setSearchOpen(false), 150)}
                 placeholder="جست‌وجو در منوها و گام‌ها…"
-                className="w-full h-9 rounded-lg bg-slate-100 pr-9 pl-3 text-sm outline-none focus:bg-slate-50 focus:ring-2 focus:ring-emerald-600/30"
+                className="w-full h-9 rounded-lg bg-muted pr-9 pl-3 text-sm outline-none focus:bg-muted/60 focus:ring-2 focus:ring-emerald-600/30"
                 aria-label="جست‌وجوی سراسری"
               />
               {searchOpen && searchResults.length > 0 && (
-                <div className="absolute top-11 inset-x-0 bg-white rounded-xl shadow-lg border p-1.5 z-50">
+                <div className="absolute top-11 inset-x-0 bg-card rounded-xl shadow-lg border p-1.5 z-50">
                   {searchResults.map((r, i) => (
                     <button
                       key={i}
                       onMouseDown={() => { setModule(r.module); setQuery(""); setSearchOpen(false); }}
-                      className="w-full text-right px-3 py-2 rounded-lg hover:bg-slate-100 text-sm"
+                      className="w-full text-right px-3 py-2 rounded-lg hover:bg-muted text-sm"
                     >
                       {r.label}
                     </button>
@@ -277,6 +278,9 @@ export function Shell() {
                 روز {faNum(Math.max(0, Math.floor((Date.now() - new Date(baselineDate).getTime()) / 86400000)))} برنامه · مبنا: {faDate(baselineDate)}
               </div>
             )}
+
+            {/* تعویض تم روشن/تاریک */}
+            <ThemeToggle />
 
             {/* اعلان‌ها */}
             <DropdownMenu open={notifOpen} onOpenChange={setNotifOpen}>
@@ -294,7 +298,7 @@ export function Shell() {
                 <div className="flex items-center justify-between px-2 py-1.5">
                   <span className="text-sm font-semibold">اعلان‌ها</span>
                   {unread > 0 && (
-                    <button onClick={markAllRead} className="text-xs text-emerald-700 hover:underline">خواندن همه</button>
+                    <button onClick={markAllRead} className="text-xs text-emerald-700 dark:text-emerald-400 hover:underline">خواندن همه</button>
                   )}
                 </div>
                 <DropdownMenuSeparator />
@@ -314,7 +318,7 @@ export function Shell() {
                       <span className="text-sm font-medium line-clamp-2">{n.title}</span>
                     </div>
                     {n.body && <span className="text-xs text-muted-foreground line-clamp-2">{n.body}</span>}
-                    {n.actionHint && <span className="text-[10px] text-emerald-700">اقدام پیشنهادی: {n.actionHint}</span>}
+                    {n.actionHint && <span className="text-[10px] text-emerald-700 dark:text-emerald-400">اقدام پیشنهادی: {n.actionHint}</span>}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
@@ -324,7 +328,7 @@ export function Shell() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="gap-2 px-2" aria-label="منوی کاربر">
-                  <UserCircle className="h-6 w-6 text-slate-500" />
+                  <UserCircle className="h-6 w-6 text-muted-foreground" />
                   <span className="hidden md:block text-sm font-medium">{user.fullName}</span>
                 </Button>
               </DropdownMenuTrigger>
@@ -346,7 +350,7 @@ export function Shell() {
                 <DropdownMenuItem onClick={() => setAboutOpen(true)}>
                   <Info className="h-4 w-4 ml-2" /> درباره سامانه و طراح
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={logout} className="text-rose-600 focus:text-rose-600">
+                <DropdownMenuItem onClick={logout} className="text-rose-600 dark:text-rose-400 focus:text-rose-600 dark:text-rose-400">
                   <LogOut className="h-4 w-4 ml-2" /> خروج از سامانه
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -359,7 +363,7 @@ export function Shell() {
           </main>
 
           {/* پانویس چسبان */}
-          <footer className="mt-auto bg-white border-t py-2.5 px-6 flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted-foreground">
+          <footer className="mt-auto bg-card border-t py-2.5 px-6 flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted-foreground">
             <div>سامانه یکپارچه راهبری تحول دیجیتال و حکمرانی هوشمند — شرکت ملی گاز ایران (NIGC-DTG)</div>
             <div className="flex items-center gap-3">
               <button onClick={() => setAboutOpen(true)} className="hover:text-foreground underline-offset-2 hover:underline">درباره سامانه</button>

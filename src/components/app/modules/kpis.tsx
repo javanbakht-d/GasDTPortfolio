@@ -63,11 +63,11 @@ export function KpisModule() {
           </CardContent></Card>
           <Card><CardContent className="p-4">
             <div className="text-xs text-muted-foreground">نیازمند تعریف/مبنا</div>
-            <div className="text-2xl font-bold mt-1 text-amber-700">{faNum(pending.length)}</div>
+            <div className="text-2xl font-bold mt-1 text-amber-700 dark:text-amber-400">{faNum(pending.length)}</div>
           </CardContent></Card>
           <Card><CardContent className="p-4">
             <div className="text-xs text-muted-foreground">خط مبنای مصوب</div>
-            <div className="text-2xl font-bold mt-1 text-emerald-700">{faNum(withBaseline.length)}</div>
+            <div className="text-2xl font-bold mt-1 text-emerald-700 dark:text-emerald-400">{faNum(withBaseline.length)}</div>
           </CardContent></Card>
           <Card><CardContent className="p-4">
             <div className="text-xs text-muted-foreground">اندازه‌گیری ثبت‌شده</div>
@@ -84,7 +84,7 @@ export function KpisModule() {
 
       <div className="grid md:grid-cols-2 gap-4">
         {kpis.map((k) => (
-          <Card key={k.id} className={k.needsDefinition ? "border-amber-300" : ""}>
+          <Card key={k.id} className={k.needsDefinition ? "border-amber-300 dark:border-amber-800" : ""}>
             <CardContent className="p-4 space-y-3">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-start gap-2 min-w-0">
@@ -95,13 +95,13 @@ export function KpisModule() {
                   </div>
                 </div>
                 {k.needsDefinition && (
-                  <Badge className="bg-amber-100 text-amber-900 border-amber-300 shrink-0">
+                  <Badge className="bg-amber-100 dark:bg-amber-900/40 text-amber-900 dark:text-amber-300 border-amber-300 dark:border-amber-800 shrink-0">
                     <AlertTriangle className="h-3 w-3 ml-1" /> نیازمند تعیین تعریف یا خط مبنا
                   </Badge>
                 )}
               </div>
 
-              <p className={`text-xs leading-6 ${k.definition?.trim() ? "text-slate-700" : "text-slate-400 italic"}`}>
+              <p className={`text-xs leading-6 ${k.definition?.trim() ? "text-foreground" : "text-muted-foreground/80 italic"}`}>
                 {k.definition?.trim() || "تعریف ثبت نشده است — تا تعیین تعریف مصوب، شاخص قابل اندازه‌گیری نیست."}
               </p>
 
@@ -116,8 +116,8 @@ export function KpisModule() {
                 <div>
                   <span className="text-muted-foreground">خط مبنا: </span>
                   {k.baseline?.trim()
-                    ? <span className="font-medium text-emerald-800">{k.baseline}</span>
-                    : <span className="text-amber-700 font-medium">ثبت نشده — نیازمند مصوبه</span>}
+                    ? <span className="font-medium text-emerald-800 dark:text-emerald-300">{k.baseline}</span>
+                    : <span className="text-amber-700 dark:text-amber-400 font-medium">ثبت نشده — نیازمند مصوبه</span>}
                 </div>
               </div>
 
@@ -127,16 +127,16 @@ export function KpisModule() {
                 <>
                   <Separator />
                   <div>
-                    <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-600 mb-1.5">
+                    <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground mb-1.5">
                       <History className="h-3.5 w-3.5" /> اندازه‌گیری‌های اخیر ({faNum(k.measurements.length)})
                     </div>
-                    <div className="max-h-32 overflow-y-auto rounded-lg border bg-slate-50/60 divide-y">
+                    <div className="max-h-32 overflow-y-auto rounded-lg border bg-muted/60 divide-y">
                       {k.measurements.map((m) => (
                         <div key={m.id} className="px-2.5 py-1.5 text-[11px] flex items-center justify-between gap-2">
                           <span className="font-medium shrink-0">{m.period}</span>
-                          <span dir="ltr" className="font-bold text-slate-700 shrink-0">{m.value}{k.unit ? ` ${k.unit}` : ""}</span>
+                          <span dir="ltr" className="font-bold text-foreground shrink-0">{m.value}{k.unit ? ` ${k.unit}` : ""}</span>
                           <span className="text-muted-foreground truncate">{m.note || "—"}</span>
-                          <span className="text-[10px] text-slate-400 shrink-0">{faDateTime(m.recordedAt)}</span>
+                          <span className="text-[10px] text-muted-foreground/80 shrink-0">{faDateTime(m.recordedAt)}</span>
                         </div>
                       ))}
                     </div>
@@ -177,7 +177,7 @@ function InfoLine({ label, value }: { label: string; value: string | null }) {
   return (
     <div>
       <span className="text-muted-foreground">{label}: </span>
-      {value?.trim() ? <span className="font-medium">{value}</span> : <span className="text-slate-400">—</span>}
+      {value?.trim() ? <span className="font-medium">{value}</span> : <span className="text-muted-foreground/80">—</span>}
     </div>
   );
 }
@@ -271,7 +271,7 @@ function BaselineDialog({ kpi, onClose }: { kpi: KpiRow; onClose: () => void }) 
           <DialogDescription>خط مبنا فقط با مصوبه ثبت می‌شود — گام ۲۶. بدون مرجع تأیید، ثبت ممکن نیست.</DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
-          <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900 leading-5">
+          <div className="rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 p-3 text-xs text-amber-900 dark:text-amber-300 leading-5">
             تعیین یا تغییر خط مبنا یک تصمیم حاکمیتی است؛ شماره مصوبه (صورت‌جلسه شورا یا ابلاغ) باید در فیلد مرجع تأیید ثبت شود و در سوابق ممیزی باقی می‌ماند.
           </div>
           <div className="space-y-1.5">
@@ -283,7 +283,7 @@ function BaselineDialog({ kpi, onClose }: { kpi: KpiRow; onClose: () => void }) 
             <Input id="k-approval" value={approvalRef} onChange={(e) => setApprovalRef(e.target.value)} placeholder="مثال: مصوبه جلسه شورای راهبری شماره ۳" />
           </div>
           {kpi.baseline?.trim() && (
-            <div className="text-xs text-muted-foreground">خط مبنای فعلی: <span className="font-medium text-slate-700">{kpi.baseline}</span></div>
+            <div className="text-xs text-muted-foreground">خط مبنای فعلی: <span className="font-medium text-foreground">{kpi.baseline}</span></div>
           )}
         </div>
         <DialogFooter className="mt-4">

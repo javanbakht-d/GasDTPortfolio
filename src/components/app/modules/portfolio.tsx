@@ -124,17 +124,17 @@ export function PortfolioModule() {
       <div className="flex flex-wrap items-center gap-2 mb-4">
         <div className="relative flex-1 min-w-52">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="جست‌وجوی عنوان، کد یا مسئله…" className="pr-9 bg-white" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="جست‌وجوی عنوان، کد یا مسئله…" className="pr-9 bg-card" />
         </div>
         <Select value={track} onValueChange={setTrack}>
-          <SelectTrigger className="w-44 bg-white"><SelectValue placeholder="سويه" /></SelectTrigger>
+          <SelectTrigger className="w-44 bg-card"><SelectValue placeholder="سويه" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">همه سویه‌ها</SelectItem>
             {Object.entries(TRACK_LABELS).map(([k, label]) => <SelectItem key={k} value={k}>{label}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="w-48 bg-white"><SelectValue placeholder="وضعیت" /></SelectTrigger>
+          <SelectTrigger className="w-48 bg-card"><SelectValue placeholder="وضعیت" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">همه وضعیت‌ها</SelectItem>
             {Object.entries(PROJECT_STATUSES).map(([k, v]) => (
@@ -156,11 +156,11 @@ export function PortfolioModule() {
           <button
             key={p.id}
             onClick={() => setDetailId(p.id)}
-            className="w-full text-right rounded-xl border bg-white p-4 transition-all hover:shadow-sm hover:border-emerald-600/40"
+            className="w-full text-right rounded-xl border bg-card p-4 transition-all hover:shadow-sm hover:border-emerald-600/40"
           >
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="flex items-start gap-3 min-w-0 flex-1">
-                <div className="h-9 w-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+                <div className="h-9 w-9 rounded-lg bg-muted text-foreground flex items-center justify-center shrink-0">
                   <FolderKanban className="h-4 w-4" />
                 </div>
                 <div className="min-w-0">
@@ -177,9 +177,9 @@ export function PortfolioModule() {
               <div className="flex flex-col items-end gap-1.5 shrink-0">
                 <ProjectStatusBadge status={p.status} />
                 <div className="flex items-center gap-2 text-xs">
-                  <Gauge className="h-3.5 w-3.5 text-slate-500" />
+                  <Gauge className="h-3.5 w-3.5 text-muted-foreground" />
                   {p.scoreTotal != null ? (
-                    <span className="font-medium text-slate-700">{faNum(p.scoreTotal)} از {faNum(100)}</span>
+                    <span className="font-medium text-foreground">{faNum(p.scoreTotal)} از {faNum(100)}</span>
                   ) : (
                     <span className="text-muted-foreground">امتیازی ثبت نشده</span>
                   )}
@@ -206,7 +206,7 @@ function StatCard({ label, value }: { label: string; value: number }) {
   return (
     <Card>
       <CardContent className="p-4">
-        <div className="text-2xl font-bold text-slate-900">{faNum(value)}</div>
+        <div className="text-2xl font-bold text-foreground">{faNum(value)}</div>
         <div className="text-xs text-muted-foreground mt-1">{label}</div>
       </CardContent>
     </Card>
@@ -247,7 +247,7 @@ function NewProjectDialog({ onClose }: { onClose: () => void }) {
             <div className="space-y-1.5">
               <Label>سویه پروژه</Label>
               <Select value={form.trackKey} onValueChange={(v) => set("trackKey", v)}>
-                <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="bg-card"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="UNIT">پروژه واحد</SelectItem>
                   <SelectItem value="PROPOSED">پیشنهاد جدید</SelectItem>
@@ -354,14 +354,14 @@ function ProjectDetailDialog({ id, onClose }: { id: string; onClose: () => void 
                 <Card>
                   <CardContent className="p-4 space-y-3 text-sm">
                     <div className="grid sm:grid-cols-2 gap-3">
-                      <MetaItem icon={<UserCheck className="h-4 w-4 text-emerald-700" />} label="مالک کسب‌وکار">{p.businessOwner ?? "—"}</MetaItem>
-                      <MetaItem icon={<Gauge className="h-4 w-4 text-emerald-700" />} label="مدیر پروژه">{p.projectManager ?? "—"}</MetaItem>
-                      <MetaItem icon={<Link2 className="h-4 w-4 text-emerald-700" />} label="مرجع">
+                      <MetaItem icon={<UserCheck className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />} label="مالک کسب‌وکار">{p.businessOwner ?? "—"}</MetaItem>
+                      <MetaItem icon={<Gauge className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />} label="مدیر پروژه">{p.projectManager ?? "—"}</MetaItem>
+                      <MetaItem icon={<Link2 className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />} label="مرجع">
                         {p.sourceRef ?? "—"}{p.refStep != null && <> · گام {faNum(p.refStep)}</>}
                       </MetaItem>
-                      <MetaItem icon={<Target className="h-4 w-4 text-emerald-700" />} label="آمادگی داده">{p.dataReadiness ?? "ثبت نشده"}</MetaItem>
-                      <MetaItem icon={<TrendingUp className="h-4 w-4 text-emerald-700" />} label="زمان‌بندی">{p.timeline ?? "—"}</MetaItem>
-                      <MetaItem icon={<Gauge className="h-4 w-4 text-emerald-700" />} label="امتیاز کل">
+                      <MetaItem icon={<Target className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />} label="آمادگی داده">{p.dataReadiness ?? "ثبت نشده"}</MetaItem>
+                      <MetaItem icon={<TrendingUp className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />} label="زمان‌بندی">{p.timeline ?? "—"}</MetaItem>
+                      <MetaItem icon={<Gauge className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />} label="امتیاز کل">
                         {p.scoreTotal != null ? `${faNum(p.scoreTotal)} از ${faNum(100)}` : "امتیازی ثبت نشده"}
                       </MetaItem>
                     </div>
@@ -372,9 +372,9 @@ function ProjectDetailDialog({ id, onClose }: { id: string; onClose: () => void 
                     <SectionBlock title="شاخص‌های موفقیت">{p.successMetrics}</SectionBlock>
                     <Separator />
                     <div className="grid sm:grid-cols-3 gap-3">
-                      <MetaItem icon={<TrendingUp className="h-4 w-4 text-emerald-700" />} label="مبنای منفعت (Baseline)">{p.benefitBaseline ?? "—"}</MetaItem>
-                      <MetaItem icon={<TrendingUp className="h-4 w-4 text-emerald-700" />} label="هدف منفعت">{p.benefitTarget ?? "—"}</MetaItem>
-                      <MetaItem icon={<TrendingUp className="h-4 w-4 text-emerald-700" />} label="منفعت محقق‌شده">{p.benefitActual ?? "—"}</MetaItem>
+                      <MetaItem icon={<TrendingUp className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />} label="مبنای منفعت (Baseline)">{p.benefitBaseline ?? "—"}</MetaItem>
+                      <MetaItem icon={<TrendingUp className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />} label="هدف منفعت">{p.benefitTarget ?? "—"}</MetaItem>
+                      <MetaItem icon={<TrendingUp className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />} label="منفعت محقق‌شده">{p.benefitActual ?? "—"}</MetaItem>
                     </div>
                   </CardContent>
                 </Card>
@@ -404,15 +404,15 @@ function ProjectDetailDialog({ id, onClose }: { id: string; onClose: () => void 
                           return (
                             <div key={m.criterion} className="rounded-lg border p-3">
                               <div className="flex items-center justify-between gap-2 flex-wrap">
-                                <span className="text-xs font-medium text-slate-700">{m.label}</span>
-                                <span className={`text-xs font-bold ${s ? "text-emerald-700" : "text-muted-foreground"}`}>
+                                <span className="text-xs font-medium text-foreground">{m.label}</span>
+                                <span className={`text-xs font-bold ${s ? "text-emerald-700 dark:text-emerald-400" : "text-muted-foreground"}`}>
                                   {s ? `${faNum(s.score)} از ${faNum(s.maxScore)}` : "ثبت نشده"}
                                 </span>
                               </div>
                               {s?.rationale && <div className="text-xs text-muted-foreground leading-5 mt-1">دلیل: {s.rationale}</div>}
-                              {s?.evidence && <div className="text-xs text-slate-500 leading-5 mt-0.5">شواهد: {s.evidence}</div>}
+                              {s?.evidence && <div className="text-xs text-muted-foreground leading-5 mt-0.5">شواهد: {s.evidence}</div>}
                               {s && (
-                                <div className="text-[10px] text-slate-400 mt-1">
+                                <div className="text-[10px] text-muted-foreground/80 mt-1">
                                   ارزیاب: {s.assessor ?? "—"} · {faDate(s.assessedAt)}
                                 </div>
                               )}
@@ -421,7 +421,7 @@ function ProjectDetailDialog({ id, onClose }: { id: string; onClose: () => void 
                         })}
                       </div>
                     )}
-                    <div className="rounded-lg bg-slate-50 border p-2.5 text-xs text-muted-foreground flex gap-1.5 mt-3">
+                    <div className="rounded-lg bg-muted/60 border p-2.5 text-xs text-muted-foreground flex gap-1.5 mt-3">
                       <Info className="h-3.5 w-3.5 shrink-0 mt-0.5" />
                       امتیازها صرفاً ورودی تصمیم‌سازی هستند؛ تصویب نهایی ورود پروژه به سبد در صلاحیت شورای راهبری است.
                     </div>
@@ -449,7 +449,7 @@ function ProjectDetailDialog({ id, onClose }: { id: string; onClose: () => void 
                               disabled={disabled}
                               onClick={() => transition.mutate(s)}
                               title={disabled ? "تصویب/رد پروژه فقط در اختیار شورای راهبری است (projects:approve)." : undefined}
-                              className={`rounded-lg border px-3 py-1.5 text-xs transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${needsApprove ? "border-emerald-600 text-emerald-800 hover:bg-emerald-50" : "hover:border-slate-300"}`}
+                              className={`rounded-lg border px-3 py-1.5 text-xs transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${needsApprove ? "border-emerald-600 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-50 dark:bg-emerald-950/40" : "hover:border-border"}`}
                             >
                               {PROJECT_STATUSES[s]?.label ?? s}
                             </button>
@@ -457,7 +457,7 @@ function ProjectDetailDialog({ id, onClose }: { id: string; onClose: () => void 
                         })}
                       </div>
                     )}
-                    <div className="rounded-lg bg-slate-50 border p-2.5 text-xs text-muted-foreground flex gap-1.5">
+                    <div className="rounded-lg bg-muted/60 border p-2.5 text-xs text-muted-foreground flex gap-1.5">
                       <Info className="h-3.5 w-3.5 shrink-0 mt-0.5" />
                       تصویب/رد نهایی صرفاً با نقش شورا (projects:approve) انجام می‌شود؛ انتقال‌های نامعتبر توسط سرور رد می‌شوند.
                     </div>
@@ -493,8 +493,8 @@ function ProjectDetailDialog({ id, onClose }: { id: string; onClose: () => void 
 function SectionBlock({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="text-xs font-medium text-slate-600 mb-1">{title}</div>
-      <div className="text-sm text-slate-700 leading-6 whitespace-pre-wrap">{children || "—"}</div>
+      <div className="text-xs font-medium text-muted-foreground mb-1">{title}</div>
+      <div className="text-sm text-foreground leading-6 whitespace-pre-wrap">{children || "—"}</div>
     </div>
   );
 }
@@ -635,7 +635,7 @@ function ScoreDialog({ project, onClose }: { project: ProjectDetail; onClose: ()
             return (
               <div key={m.criterion} className="rounded-lg border p-3 space-y-2">
                 <div className="flex items-center justify-between gap-2 flex-wrap">
-                  <div className="text-sm font-medium text-slate-800">{m.label}</div>
+                  <div className="text-sm font-medium text-foreground">{m.label}</div>
                   <Badge variant="outline" className="text-[10px]">سقف: {faNum(m.maxScore)} امتیاز</Badge>
                 </div>
                 <div className="text-xs text-muted-foreground">{m.hint}</div>
@@ -651,9 +651,9 @@ function ScoreDialog({ project, onClose }: { project: ProjectDetail; onClose: ()
                     }}
                     placeholder={`۰ تا ${faNum(m.maxScore)}`}
                   />
-                  {invalid && <span className="text-xs text-rose-600 inline-flex items-center gap-1"><XCircle className="h-3.5 w-3.5" /> خارج از سقف معیار</span>}
+                  {invalid && <span className="text-xs text-rose-600 dark:text-rose-400 inline-flex items-center gap-1"><XCircle className="h-3.5 w-3.5" /> خارج از سقف معیار</span>}
                   {!invalid && n != null && n >= 0 && n <= m.maxScore && (
-                    <span className="text-xs text-emerald-700 inline-flex items-center gap-1"><CircleCheck className="h-3.5 w-3.5" /> معتبر</span>
+                    <span className="text-xs text-emerald-700 dark:text-emerald-400 inline-flex items-center gap-1"><CircleCheck className="h-3.5 w-3.5" /> معتبر</span>
                   )}
                 </div>
                 <Textarea
@@ -671,11 +671,11 @@ function ScoreDialog({ project, onClose }: { project: ProjectDetail; onClose: ()
             );
           })}
         </div>
-        <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 flex items-center justify-between gap-2 mt-3">
+        <div className="rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 p-3 flex items-center justify-between gap-2 mt-3">
           <div className="text-sm font-medium text-emerald-900">مجموع امتیاز</div>
-          <div className="text-lg font-bold text-emerald-800">{faNum(total)} از {faNum(100)}</div>
+          <div className="text-lg font-bold text-emerald-800 dark:text-emerald-300">{faNum(total)} از {faNum(100)}</div>
         </div>
-        <div className="rounded-lg bg-slate-50 border p-2.5 text-xs text-muted-foreground flex gap-1.5">
+        <div className="rounded-lg bg-muted/60 border p-2.5 text-xs text-muted-foreground flex gap-1.5">
           <Info className="h-3.5 w-3.5 shrink-0 mt-0.5" />
           امتیازها ورودی تصمیم‌سازی هستند؛ تصویب نهایی ورود پروژه به سبد در صلاحیت شورای راهبری است و سرور این قاعده را اعمال می‌کند.
         </div>

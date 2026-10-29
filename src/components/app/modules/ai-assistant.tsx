@@ -95,7 +95,7 @@ export function AiAssistantPanel({ open, onOpenChange }: { open: boolean; onOpen
             <ScrollArea className="flex-1 p-4">
               {messages.length === 0 && (
                 <div className="space-y-3">
-                  <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 text-sm leading-6">
+                  <div className="rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 p-4 text-sm leading-6">
                     سلام {user?.fullName}! درباره وضعیت اقدامات، مهلت‌ها، پروژه‌ها، اسناد و شاخص‌های برنامه بپرسید.
                   </div>
                   <div className="text-xs font-medium text-muted-foreground px-1">سناریوهای دبیر شورا (پاسخ از داده واقعی سامانه):</div>
@@ -110,7 +110,7 @@ export function AiAssistantPanel({ open, onOpenChange }: { open: boolean; onOpen
                     "چه اطلاعاتی برای تکمیل گزارش ۹۰روزه کم داریم؟",
                     "کدام پروژه‌ها به دلیل نبود داده یا تصمیم متوقف مانده‌اند؟",
                   ].map((s) => (
-                    <button key={s} onClick={() => { askSample(s); }} className="w-full text-right rounded-lg border p-2.5 text-xs hover:border-emerald-600/40 hover:bg-emerald-50/30 disabled:opacity-50" disabled={loading}>
+                    <button key={s} onClick={() => { askSample(s); }} className="w-full text-right rounded-lg border p-2.5 text-xs hover:border-emerald-600/40 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/30 disabled:opacity-50" disabled={loading}>
                       {s}
                     </button>
                   ))}
@@ -119,16 +119,16 @@ export function AiAssistantPanel({ open, onOpenChange }: { open: boolean; onOpen
               <div className="space-y-3">
                 {messages.map((m, i) => (
                   <div key={i} className={`flex ${m.role === "user" ? "justify-start" : "justify-end"}`}>
-                    <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-6 whitespace-pre-wrap ${m.role === "user" ? "bg-slate-900 text-white" : m.configured ? "bg-emerald-50 border border-emerald-200" : "bg-amber-50 border border-amber-300 text-amber-900"}`}>
+                    <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-6 whitespace-pre-wrap ${m.role === "user" ? "bg-slate-900 text-white" : m.configured ? "bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900" : "bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-300"}`}>
                       {m.content}
-                      {m.disclaimer && <div className="text-[10px] text-emerald-700/70 mt-2 border-t border-emerald-200 pt-1.5">{m.disclaimer}</div>}
+                      {m.disclaimer && <div className="text-[10px] text-emerald-700 dark:text-emerald-400/70 mt-2 border-t border-emerald-200 dark:border-emerald-900 pt-1.5">{m.disclaimer}</div>}
                     </div>
                   </div>
                 ))}
                 {loading && (
                   <div className="flex justify-end">
-                    <div className="bg-emerald-50 border border-emerald-200 rounded-2xl px-4 py-3">
-                      <Loader2 className="h-4 w-4 animate-spin text-emerald-700" />
+                    <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 rounded-2xl px-4 py-3">
+                      <Loader2 className="h-4 w-4 animate-spin text-emerald-700 dark:text-emerald-400" />
                     </div>
                   </div>
                 )}

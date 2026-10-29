@@ -53,10 +53,10 @@ const AI_FLOW: Record<string, string[]> = {
 };
 
 const RISK_BADGE: Record<string, string> = {
-  LOW: "bg-emerald-50 text-emerald-800 border-emerald-200",
-  MEDIUM: "bg-amber-50 text-amber-800 border-amber-200",
+  LOW: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900",
+  MEDIUM: "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-900",
   HIGH: "bg-orange-50 text-orange-800 border-orange-200",
-  CRITICAL: "bg-rose-50 text-rose-700 border-rose-200",
+  CRITICAL: "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-900",
 };
 
 export function AiRegistryModule() {
@@ -99,11 +99,11 @@ export function AiRegistryModule() {
       </ModuleHeader>
 
       {/* قاعده حاکمیتی */}
-      <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 mb-4 flex gap-3">
-        <ShieldAlert className="h-5 w-5 text-rose-600 shrink-0 mt-0.5" />
+      <div className="rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/40 p-4 mb-4 flex gap-3">
+        <ShieldAlert className="h-5 w-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
         <div>
           <div className="font-bold text-rose-800 text-sm">بدون ثبت و ارزیابی، بهره‌برداری ممنوع</div>
-          <div className="text-xs text-rose-700 leading-5 mt-1">
+          <div className="text-xs text-rose-700 dark:text-rose-400 leading-5 mt-1">
             هیچ کاربرد هوش مصنوعی بدون ثبت در این دفتر و ثبت نتایج ارزیابی معتبر نمی‌تواند عملیاتی شود؛ کاربردهای پرریسک علاوه بر ارزیابی، نیازمند تأیید انسانی مستند هستند.
           </div>
         </div>
@@ -130,9 +130,9 @@ export function AiRegistryModule() {
               if (count === 0) return null;
               return (
                 <div key={k} className="flex items-center gap-3">
-                  <span className="w-32 text-xs text-slate-600 shrink-0">{v.label}</span>
+                  <span className="w-32 text-xs text-muted-foreground shrink-0">{v.label}</span>
                   <Progress value={(count / stats.total) * 100} className="h-2 flex-1" />
-                  <span className="w-8 text-xs font-medium text-slate-700 text-left shrink-0">{faNum(count)}</span>
+                  <span className="w-8 text-xs font-medium text-foreground text-left shrink-0">{faNum(count)}</span>
                 </div>
               );
             })}
@@ -144,17 +144,17 @@ export function AiRegistryModule() {
       <div className="flex flex-wrap items-center gap-2 mb-4">
         <div className="relative flex-1 min-w-52">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="جست‌وجوی عنوان، کد یا مسئله…" className="pr-9 bg-white" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="جست‌وجوی عنوان، کد یا مسئله…" className="pr-9 bg-card" />
         </div>
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="w-44 bg-white"><SelectValue placeholder="وضعیت" /></SelectTrigger>
+          <SelectTrigger className="w-44 bg-card"><SelectValue placeholder="وضعیت" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">همه وضعیت‌ها</SelectItem>
             {Object.entries(AI_APP_STATUSES).map(([k, v]) => <SelectItem key={k} value={k}>{v.label}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={risk} onValueChange={setRisk}>
-          <SelectTrigger className="w-36 bg-white"><SelectValue placeholder="ریسک" /></SelectTrigger>
+          <SelectTrigger className="w-36 bg-card"><SelectValue placeholder="ریسک" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">همه ریسک‌ها</SelectItem>
             {Object.entries(RISK_LEVELS).map(([k, label]) => <SelectItem key={k} value={k}>{label}</SelectItem>)}
@@ -170,9 +170,9 @@ export function AiRegistryModule() {
       )}
 
       {filtered.length > 0 && (
-        <div className="rounded-lg border bg-white max-h-96 overflow-y-auto">
+        <div className="rounded-lg border bg-card max-h-96 overflow-y-auto">
           <table className="w-full text-sm">
-            <thead className="bg-slate-50 sticky top-0">
+            <thead className="bg-muted/60 sticky top-0">
               <tr className="text-right text-xs text-muted-foreground">
                 <th className="p-3 font-medium">کد</th>
                 <th className="p-3 font-medium">عنوان</th>
@@ -188,14 +188,14 @@ export function AiRegistryModule() {
                 <tr
                   key={a.id}
                   onClick={() => setDetailId(a.id)}
-                  className="border-t cursor-pointer hover:bg-emerald-50/40 transition-colors"
+                  className="border-t cursor-pointer hover:bg-emerald-50/40 dark:hover:bg-emerald-950/40 transition-colors"
                 >
                   <td className="p-3 font-mono text-[10px] whitespace-nowrap">{a.code}</td>
                   <td className="p-3">
                     <div className="font-medium leading-5 flex items-center gap-2">
                       {a.title}
                       {!a.isRegisteredForOperation && ["PILOT", "OPERATIONAL"].includes(a.status) && (
-                        <Badge className="bg-rose-50 text-rose-700 border border-rose-200 text-[10px]">نیازمند مجوز بهره‌برداری</Badge>
+                        <Badge className="bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-900 text-[10px]">نیازمند مجوز بهره‌برداری</Badge>
                       )}
                     </div>
                     {a.useType && <div className="text-xs text-muted-foreground">{a.useType}</div>}
@@ -210,7 +210,7 @@ export function AiRegistryModule() {
                     {a.lastReviewAt ? (
                       <span className="text-muted-foreground">{faDate(a.lastReviewAt)}</span>
                     ) : (
-                      <span className="text-amber-700 inline-flex items-center gap-1"><FileQuestion className="h-3.5 w-3.5" /> بدون بازنگی</span>
+                      <span className="text-amber-700 dark:text-amber-400 inline-flex items-center gap-1"><FileQuestion className="h-3.5 w-3.5" /> بدون بازنگی</span>
                     )}
                   </td>
                 </tr>
@@ -227,7 +227,7 @@ export function AiRegistryModule() {
 }
 
 function StatCard({ label, value, tone, hint }: { label: string; value: number; tone: "slate" | "rose" | "amber"; hint?: string }) {
-  const color = tone === "rose" ? "text-rose-700" : tone === "amber" ? "text-amber-700" : "text-slate-900";
+  const color = tone === "rose" ? "text-rose-700 dark:text-rose-400" : tone === "amber" ? "text-amber-700 dark:text-amber-400" : "text-foreground";
   return (
     <Card>
       <CardContent className="p-4">
@@ -293,7 +293,7 @@ function NewAiAppDialog({ onClose }: { onClose: () => void }) {
             <div className="space-y-1.5">
               <Label>نوع کاربرد</Label>
               <Select value={form.useType} onValueChange={(v) => set("useType", v)}>
-                <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="bg-card"><SelectValue /></SelectTrigger>
                 <SelectContent>{USE_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
               </Select>
             </div>
@@ -320,14 +320,14 @@ function NewAiAppDialog({ onClose }: { onClose: () => void }) {
             <div className="space-y-1.5">
               <Label>طبقه‌بندی</Label>
               <Select value={form.classification} onValueChange={(v) => set("classification", v)}>
-                <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="bg-card"><SelectValue /></SelectTrigger>
                 <SelectContent>{Object.entries(DOC_CLASSIFICATIONS).map(([k, label]) => <SelectItem key={k} value={k}>{label}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
               <Label>سطح ریسک</Label>
               <Select value={form.riskLevel} onValueChange={(v) => set("riskLevel", v)}>
-                <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="bg-card"><SelectValue /></SelectTrigger>
                 <SelectContent>{Object.entries(RISK_LEVELS).map(([k, label]) => <SelectItem key={k} value={k}>{label}</SelectItem>)}</SelectContent>
               </Select>
             </div>
@@ -417,28 +417,28 @@ function AiAppDetailDialog({ app, onClose }: { app: AiApp; onClose: () => void }
                   <CardContent className="p-4 space-y-3 text-sm">
                     <SectionBlock title="مسئله / هدف">{a.problem}</SectionBlock>
                     <div className="grid sm:grid-cols-2 gap-3">
-                      <MetaItem icon={<Cpu className="h-4 w-4 text-emerald-700" />} label="مدل / ارائه‌دهنده">{a.providerModel ?? "—"}</MetaItem>
-                      <MetaItem icon={<Building2 className="h-4 w-4 text-emerald-700" />} label="مالک کسب‌وکار">{a.businessOwner ?? "—"}</MetaItem>
-                      <MetaItem icon={<Database className="h-4 w-4 text-emerald-700" />} label="داده‌های ورودی">{a.inputData ?? "—"}</MetaItem>
-                      <MetaItem icon={<Database className="h-4 w-4 text-emerald-700" />} label="خروجی‌ها">{a.outputData ?? "—"}</MetaItem>
-                      <MetaItem icon={<Database className="h-4 w-4 text-emerald-700" />} label="منابع داده">{a.dataSources ?? "—"}</MetaItem>
-                      <MetaItem icon={<Landmark className="h-4 w-4 text-emerald-700" />} label="طبقه‌بندی">{DOC_CLASSIFICATIONS[a.classification] ?? a.classification}</MetaItem>
+                      <MetaItem icon={<Cpu className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />} label="مدل / ارائه‌دهنده">{a.providerModel ?? "—"}</MetaItem>
+                      <MetaItem icon={<Building2 className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />} label="مالک کسب‌وکار">{a.businessOwner ?? "—"}</MetaItem>
+                      <MetaItem icon={<Database className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />} label="داده‌های ورودی">{a.inputData ?? "—"}</MetaItem>
+                      <MetaItem icon={<Database className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />} label="خروجی‌ها">{a.outputData ?? "—"}</MetaItem>
+                      <MetaItem icon={<Database className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />} label="منابع داده">{a.dataSources ?? "—"}</MetaItem>
+                      <MetaItem icon={<Landmark className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />} label="طبقه‌بندی">{DOC_CLASSIFICATIONS[a.classification] ?? a.classification}</MetaItem>
                     </div>
                     <Separator />
                     <div className="grid sm:grid-cols-2 gap-3">
-                      <MetaItem icon={<Eye className="h-4 w-4 text-emerald-700" />} label="نظارت انسانی">
-                        {a.humanOversight ?? <span className="text-amber-700">ثبت نشده</span>}
+                      <MetaItem icon={<Eye className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />} label="نظارت انسانی">
+                        {a.humanOversight ?? <span className="text-amber-700 dark:text-amber-400">ثبت نشده</span>}
                       </MetaItem>
-                      <MetaItem icon={<ShieldCheck className="h-4 w-4 text-emerald-700" />} label="مجوز بهره‌برداری رسمی">
+                      <MetaItem icon={<ShieldCheck className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />} label="مجوز بهره‌برداری رسمی">
                         {a.isRegisteredForOperation
-                          ? <span className="text-emerald-700 font-medium inline-flex items-center gap-1"><CircleCheck className="h-3.5 w-3.5" /> صادر شده</span>
-                          : <span className="text-amber-700 font-medium inline-flex items-center gap-1"><XCircle className="h-3.5 w-3.5" /> صادر نشده</span>}
+                          ? <span className="text-emerald-700 dark:text-emerald-400 font-medium inline-flex items-center gap-1"><CircleCheck className="h-3.5 w-3.5" /> صادر شده</span>
+                          : <span className="text-amber-700 dark:text-amber-400 font-medium inline-flex items-center gap-1"><XCircle className="h-3.5 w-3.5" /> صادر نشده</span>}
                       </MetaItem>
-                      <MetaItem icon={<History className="h-4 w-4 text-emerald-700" />} label="آخرین بازنگی">
-                        {a.lastReviewAt ? faDateTime(a.lastReviewAt) : <span className="text-amber-700">بدون بازنگی</span>}
+                      <MetaItem icon={<History className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />} label="آخرین بازنگی">
+                        {a.lastReviewAt ? faDateTime(a.lastReviewAt) : <span className="text-amber-700 dark:text-amber-400">بدون بازنگی</span>}
                       </MetaItem>
-                      <MetaItem icon={<FileQuestion className="h-4 w-4 text-emerald-700" />} label="نتایج ارزیابی">
-                        {a.evaluationResults ?? <span className="text-amber-700">ثبت نشده</span>}
+                      <MetaItem icon={<FileQuestion className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />} label="نتایج ارزیابی">
+                        {a.evaluationResults ?? <span className="text-amber-700 dark:text-amber-400">ثبت نشده</span>}
                       </MetaItem>
                     </div>
                     <SectionBlock title="محدودیت‌ها">{a.constraints}</SectionBlock>
@@ -458,7 +458,7 @@ function AiAppDetailDialog({ app, onClose }: { app: AiApp; onClose: () => void }
                           <button
                             key={s}
                             onClick={() => setSelectedStatus(s)}
-                            className={`rounded-lg border px-3 py-1.5 text-xs transition-colors ${selectedStatus === s ? "border-emerald-600 bg-emerald-50 text-emerald-800 font-medium" : "hover:border-slate-300"}`}
+                            className={`rounded-lg border px-3 py-1.5 text-xs transition-colors ${selectedStatus === s ? "border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 font-medium" : "hover:border-border"}`}
                           >
                             {AI_APP_STATUSES[s]?.label ?? s}
                           </button>
@@ -467,14 +467,14 @@ function AiAppDetailDialog({ app, onClose }: { app: AiApp; onClose: () => void }
                       {selectedStatus && (
                         <div className="space-y-2">
                           {operationalBlocked && (
-                            <div className="rounded-lg bg-rose-50 border border-rose-200 p-2.5 text-xs text-rose-800 flex gap-1.5">
+                            <div className="rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 p-2.5 text-xs text-rose-800 flex gap-1.5">
                               <Ban className="h-3.5 w-3.5 shrink-0 mt-0.5" />
                               بهره‌برداری رسمی نیازمند ثبت نتایج ارزیابی معتبر است — ابتدا نتایج ارزیابی را در بخش مدیریت ثبت کنید («بدون ثبت و ارزیابی، بهره‌برداری ممنوع»).
                             </div>
                           )}
                           {selectedNeedsApproval && !operationalBlocked && (
                             <div className="space-y-1.5">
-                              <div className="rounded-lg bg-amber-50 border border-amber-200 p-2.5 text-xs text-amber-900 flex gap-1.5">
+                              <div className="rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 p-2.5 text-xs text-amber-900 dark:text-amber-300 flex gap-1.5">
                                 <ShieldAlert className="h-3.5 w-3.5 shrink-0 mt-0.5" />
                                 کاربرد پرریسک نیازمند ثبت تأیید انسانی مستند پیش از بهره‌برداری است.
                               </div>
@@ -512,7 +512,7 @@ function AiAppDetailDialog({ app, onClose }: { app: AiApp; onClose: () => void }
                         <div className="space-y-1.5">
                           <Label className="text-xs">سطح ریسک</Label>
                           <Select value={manageValue.riskLevel} onValueChange={(v) => setManageForm({ ...manageValue, riskLevel: v })}>
-                            <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
+                            <SelectTrigger className="bg-card"><SelectValue /></SelectTrigger>
                             <SelectContent>{Object.entries(RISK_LEVELS).map(([k, label]) => <SelectItem key={k} value={k}>{label}</SelectItem>)}</SelectContent>
                           </Select>
                         </div>
@@ -561,7 +561,7 @@ function AiAppDetailDialog({ app, onClose }: { app: AiApp; onClose: () => void }
                 )}
 
                 {!hasPerm("ai_registry:manage") && (
-                  <div className="rounded-lg bg-slate-50 border p-2.5 text-xs text-muted-foreground flex gap-1.5">
+                  <div className="rounded-lg bg-muted/60 border p-2.5 text-xs text-muted-foreground flex gap-1.5">
                     <Info className="h-3.5 w-3.5 shrink-0 mt-0.5" />
                     مدیریت وضعیت، ارزیابی و صدور مجوز نیازمند نقش مجاز (ai_registry:manage) است.
                   </div>
@@ -577,8 +577,8 @@ function AiAppDetailDialog({ app, onClose }: { app: AiApp; onClose: () => void }
 function SectionBlock({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="text-xs font-medium text-slate-600 mb-1">{title}</div>
-      <div className="text-sm text-slate-700 leading-6 whitespace-pre-wrap">{children || "—"}</div>
+      <div className="text-xs font-medium text-muted-foreground mb-1">{title}</div>
+      <div className="text-sm text-foreground leading-6 whitespace-pre-wrap">{children || "—"}</div>
     </div>
   );
 }
