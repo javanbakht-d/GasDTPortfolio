@@ -30,17 +30,17 @@ bun run dev                 # http://localhost:3000
 
 کاربران نمونه (پس از seed): `admin` — رمز: `Nigc@1405` (بلافاصله تغییر دهید)
 
-## استقرار رایگان ابری (Vercel + Neon)
+## استقرار رایگان ابری (Vercel + Supabase)
 
-راهنمای کامل گام‌به‌گام: **[docs/deploy-guide.md](docs/deploy-guide.md)**
+راهنمای کامل گام‌به‌گام (نسخه ۲ — شروع تمیز، سرویس‌های قابل‌دسترس از ایران): **[docs/deploy-guide.md](docs/deploy-guide.md)**
 
 خلاصه معماری ابری:
 
 | جزء | سرویس | پلن |
 |---|---|---|
-| اپلیکیشن | Vercel | Hobby (رایگان) |
-| دیتابیس | Neon PostgreSQL | Free (۰٫۵ گیگابایت) |
-| زمان‌بند یادآور | cron-job.org → `/api/system/cron-tick` | رایگان (هر ۵ دقیقه) |
+| اپلیکیشن | Vercel | Hobby (رایگان) — Function Region: فرانکفورت |
+| دیتابیس | Supabase PostgreSQL | Free (۵۰۰ مگابایت، بدون کارت بانکی، قابل‌مدیریت از ایران) |
+| زمان‌بند یادآور | cron-job.org → `/api/system/cron-tick` | رایگان (هر ۵ دقیقه — پروژه Supabase را فعال نگه می‌دارد) |
 | راه‌اندازی اولیه | `/api/system/bootstrap` با `BOOTSTRAP_TOKEN` — بدون نیاز به ابزار لوکال | — |
 
 ## مستندات

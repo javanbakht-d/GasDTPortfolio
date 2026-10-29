@@ -375,3 +375,28 @@ Work Log:
 Stage Summary:
 - راهنمای کاملاً داخل برنامه، آنلاین، فارسی و RTL؛ برای همه نقش‌ها در دسترس است
 - محتوا دقیقاً مطابق قابلیت‌های واقعی سامانه (۳۷ گام، ۱۶ نقش، ۷۷ واحد، قواعد حاکمیتی)
+
+---
+Task ID: cloud-clean-start
+Agent: Z.ai Code (main)
+Task: بررسی عمیق استقرار ابری — دسترس‌پذیری ایران، تحلیل دو تصویر، نسخه Git، شروع تمیز
+
+Work Log:
+- Git: origin/main = HEAD = c64a762 — آخرین نسخه (راهنمای درون‌برنامه‌ای) روی GitHub است ✓
+- تحلیل تصویر Neon: دو پروژه تکراری «gasdt» (AWS US East، مصرف تقریباً صفر) — دستور حذف هر دو
+- تحلیل تصویر Vercel: gasdt.app = Invalid Configuration + gas-dt-portfolio.vercel.app روی Redirect 307
+  به gasdt.app → سایت در هیچ آدرسی بالا نمی‌آید؛ رفع فوری: Edit دامنه vercel.app → Connect to Production
+- تحقیق دسترس‌پذیری از ایران (عناوین رسمی + تجربه جامعه):
+  * Neon (neon.com): داشبورد از ایران باز نمی‌شود (مشاهده مدیر) — کنار گذاشته شد
+  * Supabase: Free $0 بدون کارت، ۵۰۰MB DB، ۵GB egress، ۲ پروژه، pause پس از ۱ هفته بی‌کاری
+    (تیک cron ۵دقیقه‌ای جلوی آن را می‌گیرد)؛ PostgreSQL واقعی = صفر تغییر کد
+  * Aiven Free: $0، VM اختصاصی ۱GB، بدون pause — پلن جایگزین B
+- راهنمای استقرار بازنویسی شد (نسخه ۲): گام پاکسازی (حذف ۲ پروژه Neon + رفع redirect + اختیاری حذف
+  پروژه Vercel)، Supabase Session pooler پورت 5432 (سازگار Prisma بدون پارامتر)، ریجن فرانکفورت
+  (Supabase + Vercel fra1)، گام ۸ اصلاح DNS gasdt.app (A @ 76.76.21.21 + CNAME www) و جهت صحیح redirect
+- README بخش استقرار به‌روز شد (Vercel + Supabase)
+- چک‌لیست صحت‌سنجی به ۹ مورد افزایش یافت (مورد راهنما و مورد فعال‌ماندن Supabase)
+
+Stage Summary:
+- تصمیم: Supabase (پلن اصلی) + Vercel فرانکفورت + cron-job.org — همه رایگان و از ایران قابل‌مدیریت
+- مسیر شروع تمیز کامل مستند شد؛ منتظر اجرای گام‌ها توسط مدیر
