@@ -400,3 +400,19 @@ Work Log:
 Stage Summary:
 - تصمیم: Supabase (پلن اصلی) + Vercel فرانکفورت + cron-job.org — همه رایگان و از ایران قابل‌مدیریت
 - مسیر شروع تمیز کامل مستند شد؛ منتظر اجرای گام‌ها توسط مدیر
+
+---
+Task ID: cloud-clean-start-step1
+Agent: Z.ai Code (main)
+Task: اجرای گام ۱ راهنمای استقرار v2 — پاکسازی کامل Neon و Vercel (مسیر تمیز)
+
+Work Log:
+- Neon: هر دو پروژه تکراری «gasdt» حذف شد — تأیید تصویری «You currently have no projects»
+- Vercel: پروژه gas-dt-portfolio کامل حذف شد (مسیر شروع صددرصد تمیز به‌جای رفع ریدایرکت)
+- صحت‌سنجی سمت سرور: gas-dt-portfolio.vercel.app → 404 DEPLOYMENT_NOT_FOUND (پروژه واقعاً حذف؛ ریدایرکت 307 معیوب منتفی شد)
+- gasdt.app: همچنان بدون DNS — طبق برنامه در گام ۸ پس از استقرار جدید وصل می‌شود
+- دو توکن امن گام ۳ تولید و تحویل شد (CRON_SECRET / BOOTSTRAP_TOKEN — ۴۸ نویسه هگز)
+
+Stage Summary:
+- هر دو بستر خالی شدند؛ پیش‌شرط شروع تمیز کامل شد
+- گام بعدی: گام ۲ راهنما — دیتابیس رایگان Supabase (Session pooler 5432، ریجن فرانکفورت)، سپس گام ۴ استقرار Vercel
