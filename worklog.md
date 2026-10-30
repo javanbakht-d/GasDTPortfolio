@@ -416,3 +416,21 @@ Work Log:
 Stage Summary:
 - هر دو بستر خالی شدند؛ پیش‌شرط شروع تمیز کامل شد
 - گام بعدی: گام ۲ راهنما — دیتابیس رایگان Supabase (Session pooler 5432، ریجن فرانکفورت)، سپس گام ۴ استقرار Vercel
+
+---
+Task ID: cloud-deploy-step4-5
+Agent: Z.ai Code (main)
+Task: استقرار ابری تمیز — دیپلوی Vercel + Supabase + رفع دو خطا + bootstrap موفق
+
+Work Log:
+- پروژه Vercel «gasdt» از GitHub import شد؛ سه env (DATABASE_URL / CRON_SECRET / BOOTSTRAP_TOKEN) تنظیم شد
+- خطای ۱: Authentication failed — رمز در DATABASE_URL جایگزین نشده بود؛ پس از تشخیص (?debug=1) کاربر اصلاح کرد؛ host صحیح: aws-1-eu-central-1.pooler.supabase.com:5432 ✓
+- ریجن تابع به فرانکفورت (fra1) اعمال شد — تأیید با هدر x-vercel-id: hkg1::fra1::… ✓
+- خطای ۲: P2021 (table public.User does not exist) — باگ ترتیبی bootstrap: چک «قبلاً راه‌اندازی شده؟» قبل از DDL بود و روی دیتابیس خالی می‌شکست؛ اصلاح: اول DDL → بعد چک → بعد seed (کامیت 9805e67)
+- تشخیص‌ساز امن اضافه شد: ?debug=1 با توکن → DATABASE_URL پاک‌سازیشده (بدون رمز)، وضعیت env، ریجن، خطای واقعی (کامیت aad6243)
+- ✅ bootstrap موفق: 67 DDL + seed کامل (۸ کاربر، ۳۷ اقدام، ۱۶ نقش، ۸ KPI، ۱۱ سند، ۲۱ تنظیم ارتقا) در 1.9 ثانیه
+- demoCredentials: admin / Nigc@1405 (فقط admin فعال) — تغییر فوری رمزها گام بعدی
+
+Stage Summary:
+- اپ ابری زنده: https://gasdt.vercel.app — Supabase PostgreSQL + Vercel fra1 — همه رایگان
+- باقی‌مانده: تغییر رمزها (۵-۲)، قفل bootstrap (۵-۳)، cron-job.org (۶)، اتصال دامنه gasdt.app (۸)
