@@ -134,18 +134,43 @@ async function buildReport(): Promise<{
     });
   }
 
-  // ۴) بسامد تیک در ۲۴ ساعت (انتظار: ~۲۸۸ اجرا با کرون ۵ دقیقه‌ای)
+  // ۴) نسبت تیک به زمان مشاهده — مقاوم در برابر استقرار تازه
+  // پنجره مشاهده: از max(۲۴ ساعت پیش، اولین اجرای ثبت‌شده) تا اکنون.
+  // انتظار: هر ۵ دقیقه یک تیک از cron بیرونی → نسبت = اجرای واقعی ÷ انتظار
   {
-    const runs24h = await safe(() => db.schedulerRun.count({ where: { startedAt: { gte: new Date(Date.now() - DAY) } } }), -1);
-    metrics.tickRuns24h = runs24h;
-    checks.push({
-      key: "tick_frequency_24h",
-      title: "بسامد تیک (۲۴ ساعت)",
-      status: runs24h < 0 ? "SKIP" : runs24h >= 200 ? "PASS" : runs24h >= 50 ? "WARN" : "FAIL",
-      value: runs24h < 0 ? "نامشخص" : `${runs24h} اجرا`,
-      threshold: "سبز ≥۲۰۰ | زرد ≥۵۰ | قرمز <۵۰",
-      detail: runs24h >= 0 && runs24h < 200 ? "کمتر از انتظار (~۲۸۸) — احتمالاً cron-job.org بخشی از روز از کار بوده است" : undefined,
-    });
+    const EXTERNAL_INTERVAL_MIN = 5;
+    const firstRun = await safe(() => db.schedulerRun.findFirst({ orderBy: { startedAt: "asc" }, select: { startedAt: true } }), null);
+    if (!firstRun) {
+      checks.push({
+        key: "tick_frequency_24h",
+        title: "نسبت تیک به زمان مشاهده",
+        status: "FAIL",
+        value: "بدون اجرا",
+        threshold: "سبز ≥۸۰٪ انتظار | زرد ≥۴۰٪ | قرمز <۴۰٪",
+        detail: "هیچ تیکی ثبت نشده است — cron بیرونی یا دیتابیس از کار افتاده است",
+      });
+      metrics.tickRunsWindow = 0;
+    } else {
+      const windowStart = new Date(Math.max(Date.now() - DAY, firstRun.startedAt.getTime()));
+      const runsWindow = await safe(() => db.schedulerRun.count({ where: { startedAt: { gte: windowStart } } }), -1);
+      const elapsedMin = Math.max(1, (Date.now() - windowStart.getTime()) / 60000);
+      const expected = Math.max(1, Math.floor(elapsedMin / EXTERNAL_INTERVAL_MIN));
+      metrics.tickRunsWindow = runsWindow;
+      metrics.tickExpectedWindow = expected;
+      const ratio = runsWindow < 0 ? -1 : runsWindow / expected;
+      metrics.tickRatio = ratio === -1 ? null : Math.round(ratio * 100) / 100;
+      checks.push({
+        key: "tick_frequency_24h",
+        title: "نسبت تیک به زمان مشاهده",
+        status: ratio < 0 ? "SKIP" : ratio >= 0.8 ? "PASS" : ratio >= 0.4 ? "WARN" : "FAIL",
+        value: ratio < 0 ? "نامشخص" : `${runsWindow} اجرا در ${Math.round(elapsedMin)} دقیقه (${Math.round(ratio * 100)}٪ انتظار)`,
+        threshold: "سبز ≥۸۰٪ انتظار | زرد ≥۴۰٪ | قرمز <۴۰٪",
+        detail:
+          runsWindow >= 0 && ratio < 0.8
+            ? `کمتر از انتظار (باید ~${expected} اجرا بود) — cron-job.org بخشی از بازه از کار بوده است`
+            : undefined,
+      });
+    }
   }
 
   // ۵) اعلان‌های خراب و معوق
