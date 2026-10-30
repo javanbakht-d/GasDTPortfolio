@@ -81,18 +81,7 @@ async function bootstrap(req: NextRequest) {
 
   const started = Date.now();
 
-  // ── ۱) آیا قبلاً راه‌اندازی شده؟ ──
-  const existingUsers = await db.user.count();
-  if (existingUsers > 0) {
-    const [actions, settings] = await Promise.all([db.action.count(), db.setting.count()]);
-    return json({
-      alreadyBootstrapped: true,
-      counts: { users: existingUsers, actions, settings },
-      message: "سامانه قبلاً راه‌اندازی شده است. برای بازنشانی کامل، دیتابیس خالی شود و مسیر دوباره فراخوانی گردد.",
-    });
-  }
-
-  // ── ۲) اجرای DDL (idempotent) ──
+  // ── ۱) اجرای DDL (idempotent — روی دیتابیس خالی جداول را می‌سازد و اگر موجود باشند رد می‌شود) ──
   let ddlExecuted = 0;
   let ddlSkipped = 0;
   const ddlErrors: { index: number; error: string }[] = [];
@@ -112,6 +101,17 @@ async function bootstrap(req: NextRequest) {
   }
   if (ddlErrors.length > 0) {
     return json({ ok: false, code: "DDL_FAILED", message: "اجرای ساخت جداول ناقص ماند — اتصال دیتابیس و DATABASE_URL را بررسی کنید.", ddlExecuted, ddlSkipped, ddlErrors }, 500);
+  }
+
+  // ── ۲) آیا قبلاً راه‌اندازی شده؟ (بعد از تضمین وجود جداول) ──
+  const existingUsers = await db.user.count();
+  if (existingUsers > 0) {
+    const [actions, settings] = await Promise.all([db.action.count(), db.setting.count()]);
+    return json({
+      alreadyBootstrapped: true,
+      counts: { users: existingUsers, actions, settings },
+      message: "سامانه قبلاً راه‌اندازی شده است. برای بازنشانی کامل، دیتابیس خالی شود و مسیر دوباره فراخوانی گردد.",
+    });
   }
 
   // ── ۳) seed کامل داده‌های سند مرجع + تنظیمات ارتقا ──
