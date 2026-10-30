@@ -30,6 +30,49 @@ function extractToken(req: NextRequest): string | null {
 /** کدهای خطای PostgreSQL که در اجرای مجدد DDL نرمال و قابل‌چشم‌پوشی هستند */
 const IDEMPOTENT_PG_CODES = new Set(["42P07", "42P06", "42710", "42701", "42P16"]);
 
+/** نمایش امن رشته اتصال برای تشخیص خطا — رمز هرگز نمایش داده نمی‌شود */
+function sanitizeDbUrl(raw: string | undefined) {
+  if (!raw) return { present: false as const };
+  try {
+    const u = new URL(raw);
+    return {
+      present: true as const,
+      scheme: u.protocol.replace(":", ""),
+      host: u.hostname,
+      port: u.port || null,
+      database: u.pathname.replace(/^\//, ""),
+      user: decodeURIComponent(u.username || "").slice(0, 24),
+      passwordLooksPlaceholder: /your-password|[\[\]{}]/i.test(decodeURIComponent(u.password || "")),
+      passwordLength: (u.password || "").length,
+      params: Object.fromEntries(u.searchParams.entries()),
+    };
+  } catch {
+    return { present: true as const, parseError: true as const, length: raw.length, head: raw.slice(0, 16) + "…" };
+  }
+}
+
+/** پاسخ تشخیصی — فقط با توکن معتبر و ?debug=1 */
+function errorDiagnostics(e: unknown) {
+  const err = e as { name?: string; code?: string; message?: string };
+  return json(
+    {
+      debug: true,
+      vercelRegion: process.env.VERCEL_REGION ?? null,
+      databaseUrl: sanitizeDbUrl(process.env.DATABASE_URL),
+      env: {
+        hasBootstrapToken: Boolean(process.env.BOOTSTRAP_TOKEN),
+        hasCronSecret: Boolean(process.env.CRON_SECRET),
+      },
+      error: { name: err.name ?? null, code: err.code ?? null, message: (err.message ?? "").slice(0, 600) },
+    },
+    500,
+  );
+}
+
+function debugRequested(req: NextRequest) {
+  return req.nextUrl.searchParams.get("debug") === "1" && tokenOk(extractToken(req), process.env.BOOTSTRAP_TOKEN);
+}
+
 async function bootstrap(req: NextRequest) {
   const provided = extractToken(req);
   if (!tokenOk(provided, process.env.BOOTSTRAP_TOKEN)) {
@@ -112,6 +155,8 @@ export async function POST(req: NextRequest) {
   try {
     return await bootstrap(req);
   } catch (e) {
+    console.error("[bootstrap]", e);
+    if (debugRequested(req)) return errorDiagnostics(e);
     return handleApiError(e);
   }
 }
@@ -120,6 +165,8 @@ export async function GET(req: NextRequest) {
   try {
     return await bootstrap(req);
   } catch (e) {
+    console.error("[bootstrap]", e);
+    if (debugRequested(req)) return errorDiagnostics(e);
     return handleApiError(e);
   }
 }
