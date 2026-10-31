@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { requireAuth, json, handleApiError, audit, rateLimit, clientIp, fail } from "@/lib/api";
 import { getBaselineDate, faDate } from "@/lib/persian-date";
 import { GLOBAL_VIEW_ROLES, ACTION_STATUSES, CYCLES } from "@/lib/constants";
-import { getZaiClient, zaiSetupHint } from "@/lib/zai";
+import { chatWithFallback, zaiSetupHint } from "@/lib/zai";
 
 /**
  * دستیار هوشمند دبیرخانه — پاسخ مستند و مبتنی بر داده مجاز کاربر
@@ -346,17 +346,16 @@ export async function POST(req: NextRequest) {
     if (!question) return fail(400, "پرسش الزامی است.", "BAD_INPUT");
 
     const { context, fedSections } = await retrieveContext(user, question);
-    const zai = await getZaiClient();
     const messages: { role: string; content: string }[] = [
       { role: "assistant", content: buildSystemPrompt(context) },
       ...history.map((h: { role: string; content: string }) => ({ role: h.role === "user" ? "user" : "assistant", content: String(h.content).slice(0, 2000) })),
       { role: "user", content: question },
     ];
 
-    const completion = await zai.chat.completions.create({ messages: messages as never, thinking: { type: "disabled" } });
-    const answer = completion.choices[0]?.message?.content ?? "";
+    const { result: completion, mode } = await chatWithFallback({ messages: messages as never, thinking: { type: "disabled" } });
+    const answer = completion.choices?.[0]?.message?.content ?? "";
 
-    await audit(user, "AI_QUERY", "AI_ASSISTANT", undefined, { questionLength: question.length, answerLength: answer.length, mode: zai.mode, sections: fedSections.length }, ip);
+    await audit(user, "AI_QUERY", "AI_ASSISTANT", undefined, { questionLength: question.length, answerLength: answer.length, mode, sections: fedSections.length }, ip);
 
     return json({
       configured: true,
@@ -372,7 +371,7 @@ export async function POST(req: NextRequest) {
     return json({
       configured: false,
       message: "اتصال به مدل زبانی در دسترس نیست یا پیکربندی نشده است. سایر قابلیت‌های سامانه فعال‌اند.",
-      ...(isAdmin ? { hint: zaiSetupHint() } : {}),
+      ...(isAdmin ? { hint: await zaiSetupHint() } : {}),
     });
   }
 }

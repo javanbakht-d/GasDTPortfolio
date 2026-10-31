@@ -316,6 +316,70 @@ async function buildReport(): Promise<{
     });
   }
 
+  // ۱۲) اتصال مدل زبانی دستیار — پیکربندی + دسترس‌پذیری رله (بدون مصرف توکن)
+  {
+    const { zaiConfigMode } = await import("@/lib/zai");
+    const mode = await zaiConfigMode();
+    metrics.aiMode = mode;
+    if (mode === "none") {
+      metrics.aiRelayReachable = null;
+      checks.push({
+        key: "ai_model",
+        title: "اتصال مدل زبانی دستیار",
+        status: "WARN",
+        value: "پیکربندی نشده",
+        threshold: "سبز: منبع اتصال تنظیم و در دسترس | زرد: پیکربندی نشده یا رله در دسترس نیست",
+        detail: "متغیرهای LLM_PROXY_URL/KEY (رله سندباکس) یا AI_BASE_URL/KEY تنظیم نشده‌اند — دستیار هوشمند پاسخ نمی‌دهد. راهنما: docs/ai-model-setup.md",
+      });
+    } else if (mode === "env-relay") {
+      const reachable = await safe(async () => {
+        const res = await fetch(`${process.env.LLM_PROXY_URL!.replace(/\/+$/, "")}`, { method: "GET", signal: AbortSignal.timeout(8000) });
+        return res.ok;
+      }, false);
+      metrics.aiRelayReachable = reachable;
+      checks.push({
+        key: "ai_model",
+        title: "اتصال مدل زبانی دستیار (رله سندباکس)",
+        status: reachable ? "PASS" : "WARN",
+        value: reachable ? "پیکربندی + رله در دسترس ✓" : "پیکربندی‌شده اما رله پاسخ نمی‌دهد",
+        threshold: "سبز: رله در دسترس | زرد: رله در دسترس نیست",
+        detail: reachable ? undefined : "فضای میزبان رله (gdtportfolio.space-z.ai) در دسترس نیست — دستیار موقتاً پاسخ نمی‌دهد؛ بعداً پایش کنید",
+      });
+    } else if (mode === "env-zai") {
+      // مسیر مستقیم — دسترس‌پذیری endpoint (هر پاسخ HTTP حتی 4xx یعنی شبکه باز است)
+      const baseUrl = (() => {
+        try {
+          if (process.env.ZAI_CONFIG_JSON) return (JSON.parse(process.env.ZAI_CONFIG_JSON) as { baseUrl?: string }).baseUrl;
+          return process.env.ZAI_BASE_URL;
+        } catch { return undefined; }
+      })();
+      const reachable = baseUrl
+        ? await safe(async () => {
+            await fetch(baseUrl.replace(/\/+$/, ""), { method: "GET", signal: AbortSignal.timeout(8000) });
+            return true;
+          }, false)
+        : false;
+      metrics.aiEndpointReachable = reachable;
+      checks.push({
+        key: "ai_model",
+        title: "اتصال مدل زبانی دستیار (مستقیم)",
+        status: reachable ? "PASS" : "WARN",
+        value: reachable ? "پیکربندی + endpoint در دسترس ✓" : "پیکربندی‌شده اما endpoint از این شبکه در دسترس نیست",
+        threshold: "سبز: endpoint در دسترس | زرد: شبکه بسته",
+        detail: reachable ? undefined : "endpoint مدل از شبکه این استقرار پاسخ نمی‌دهد — fallback به رله انجام می‌شود؛ در صورت نبود رله، دستیار پاسخ نمی‌دهد",
+      });
+    } else {
+      metrics.aiRelayReachable = null;
+      checks.push({
+        key: "ai_model",
+        title: "اتصال مدل زبانی دستیار",
+        status: "PASS",
+        value: `پیکربندی شده (${mode})`,
+        threshold: "سبز: منبع اتصال تنظیم شده",
+      });
+    }
+  }
+
   const overall = worst(checks.map((c) => c.status));
   const passCount = checks.filter((c) => c.status === "PASS").length;
   const warnCount = checks.filter((c) => c.status === "WARN").length;

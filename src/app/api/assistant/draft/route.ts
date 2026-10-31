@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { requireAuth, json, handleApiError, audit, rateLimit, fail, clientIp } from "@/lib/api";
 import type { AuthUser } from "@/lib/auth";
 import { faDate } from "@/lib/persian-date";
-import { getZaiClient, zaiSetupHint } from "@/lib/zai";
+import { chatWithFallback, zaiSetupHint } from "@/lib/zai";
 
 /**
  * سطح ۳/۴ دستیار هوشمند — تهیه پیش‌نویس زمین‌گیر از رکورد واقعی
@@ -89,8 +89,7 @@ export async function POST(req: NextRequest) {
       progress_summary: "پیش‌نویس خلاصه پیشرفت این اقدام برای گزارش مدیریتی: وضعیت، پیشرفت، موانع ثبت‌شده، اقدام بعدی. بدون افزودن عدد یا رویداد جدید.",
     };
 
-    const zai = await getZaiClient();
-    const completion = await zai.chat.completions.create({
+    const { result: completion } = await chatWithFallback({
       messages: [
         {
           role: "assistant",
@@ -109,7 +108,7 @@ ${recordContext}`,
       ],
       thinking: { type: "disabled" },
     });
-    const draft = completion.choices[0]?.message?.content?.trim() ?? "";
+    const draft = completion.choices?.[0]?.message?.content?.trim() ?? "";
 
     // ثبت در پرونده اقدام — سطح ۴ (اجرای کنترل‌شده) با ممیزی
     let savedUpdateId: string | null = null;
@@ -136,7 +135,7 @@ ${recordContext}`,
       ok: false,
       configured: false,
       message: "اتصال به مدل زبانی در دسترس نیست. سایر قابلیت‌های سامانه فعال‌اند.",
-      ...(isAdmin ? { hint: zaiSetupHint() } : {}),
+      ...(isAdmin ? { hint: await zaiSetupHint() } : {}),
     });
   }
 }

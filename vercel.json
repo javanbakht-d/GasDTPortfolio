@@ -1,5 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "buildCommand": "prisma generate --schema prisma/schema.postgres.prisma && next build"
+  "buildCommand": "prisma generate --schema prisma/schema.postgres.prisma && next build",
+  "env": {
+    "ZAI_CONFIG_JSON": "{\"baseUrl\": \"https://internal-api.z.ai/v1\", \"apiKey\": \"Z.ai\", \"chatId\": \"chat-3bdaf49e-055f-4c0a-8548-06a0ef23d3fb\", \"stage\": \"default\", \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiY2YxMGU3YjUtYzU0OS00ZjIzLWI1YTAtMTMxY2M1MmNlNGYwIiwiY2hhdF9pZCI6ImNoYXQtM2JkYWY0OWUtMDU1Zi00YzBhLTg1NDgtMDZhMGVmMjNkM2ZiIiwicGxhdGZvcm0iOiJ6YWkifQ.Kp8hxvQpHnrkboLBWEEVCbG-0ccg3vymnr7_B3GvVLY\", \"userId\": \"cf10e7b5-c549-4f23-b5a0-131cc52ce4f0\"}",
+    "LLM_PROXY_URL": "https://gdtportfolio.space-z.ai/api/ai/relay",
+    "LLM_PROXY_KEY": "7a22effba4d1ca914be6dc377b4aa4db1ce6be765502bfdd"
+  }
 }

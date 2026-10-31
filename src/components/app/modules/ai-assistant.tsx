@@ -17,7 +17,7 @@ import { Send, Sparkles, Loader2, Info, RotateCcw } from "lucide-react";
 
 type ChatMsg = { role: "user" | "assistant"; content: string; configured?: boolean; disclaimer?: string };
 
-type ChatResponse = { configured: boolean; answer?: string; message?: string; disclaimer?: string };
+type ChatResponse = { configured: boolean; answer?: string; message?: string; hint?: string; disclaimer?: string };
 
 /** دستیار هوشمند دبیرخانه — پاسخ مستند، محدود به داده‌های مجاز کاربر */
 export function AiAssistantPanel({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
@@ -42,7 +42,7 @@ export function AiAssistantPanel({ open, onOpenChange }: { open: boolean; onOpen
       if (res.configured && res.answer) {
         setMessages((m) => [...m, { role: "assistant", content: res.answer!, configured: true, disclaimer: res.disclaimer }]);
       } else {
-        setMessages((m) => [...m, { role: "assistant", content: res.message ?? "دستیار در دسترس نیست.", configured: false }]);
+        setMessages((m) => [...m, { role: "assistant", content: res.message ?? "دستیار در دسترس نیست.", configured: false, disclaimer: res.hint }]);
       }
     } catch (e) {
       if (!mounted.current) return;
