@@ -262,7 +262,9 @@ export async function chatWithFallback(body: ChatCreateBody): Promise<{ result: 
   let lastError: unknown = null;
   for (const src of ordered) {
     try {
-      const result = await withTimeout(src.chat.completions.create(body), 25_000);
+      // منبع اثبات‌نشده با تایم‌اوت کوتاه امتحان می‌شود تا مسیرهای شکسته، پرسش را گروگان نگیرند
+      const timeoutMs = src.mode === preferredMode ? 25_000 : 7_000;
+      const result = await withTimeout(src.chat.completions.create(body), timeoutMs);
       preferredMode = src.mode;
       return { result, mode: src.mode };
     } catch (e) {
