@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { requireAuth, json, handleApiError, audit, rateLimit, fail, clientIp } from "@/lib/api";
 import type { AuthUser } from "@/lib/auth";
 import { faDate } from "@/lib/persian-date";
+import { getZaiClient, zaiSetupHint } from "@/lib/zai";
 
 /**
  * سطح ۳/۴ دستیار هوشمند — تهیه پیش‌نویس زمین‌گیر از رکورد واقعی
@@ -88,8 +89,7 @@ export async function POST(req: NextRequest) {
       progress_summary: "پیش‌نویس خلاصه پیشرفت این اقدام برای گزارش مدیریتی: وضعیت، پیشرفت، موانع ثبت‌شده، اقدام بعدی. بدون افزودن عدد یا رویداد جدید.",
     };
 
-    const { default: ZAI } = await import("z-ai-web-dev-sdk");
-    const zai = await ZAI.create();
+    const zai = await getZaiClient();
     const completion = await zai.chat.completions.create({
       messages: [
         {
@@ -131,6 +131,12 @@ ${recordContext}`,
   } catch (e) {
     console.error("[AI-DRAFT]", e);
     await audit(authUser, "AI_QUERY_ERROR", "AI_ASSISTANT", "draft", undefined).catch(() => undefined);
-    return json({ ok: false, configured: false, message: "اتصال به مدل زبانی در دسترس نیست. سایر قابلیت‌های سامانه فعال‌اند." });
+    const isAdmin = (authUser.permissions ?? []).includes("*") || (authUser.permissions ?? []).includes("settings:manage");
+    return json({
+      ok: false,
+      configured: false,
+      message: "اتصال به مدل زبانی در دسترس نیست. سایر قابلیت‌های سامانه فعال‌اند.",
+      ...(isAdmin ? { hint: zaiSetupHint() } : {}),
+    });
   }
 }

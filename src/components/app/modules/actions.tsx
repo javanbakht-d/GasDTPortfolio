@@ -62,6 +62,7 @@ export function ActionsModule() {
   const [group, setGroup] = useState<string>("all");
   const [status, setStatus] = useState<string>("all");
   const [q, setQ] = useState("");
+  const [newOpen, setNewOpen] = useState(false);
 
   const { data, isLoading, isError, refetch } = useQuery<{ actions: ActionRow[]; programDay: number }>({
     queryKey: ["actions"],
@@ -90,7 +91,7 @@ export function ActionsModule() {
         description="مدیریت ۳۷ گام سند مرجع و اقدامات تکمیلی — هر گام با شناسه مرجع قابل ردیابی، مهلت نسبی از تاریخ ابلاغ، وابستگی‌های صریح و گردش کار قابل کنترل."
       >
         {hasPerm("actions:create") && (
-          <Button size="sm" disabled title="ثبت اقدام جدید از طریق ماژول (در نسخه‌های بعدی با فرم کامل)">
+          <Button size="sm" onClick={() => setNewOpen(true)}>
             <Plus className="h-4 w-4 ml-1" /> اقدام جدید
           </Button>
         )}
@@ -184,7 +185,211 @@ export function ActionsModule() {
       </div>
 
       {openActionId && <ActionDetailDialog id={openActionId} onClose={() => openAction(null)} />}
+      {newOpen && <NewActionDialog data={data ?? null} onClose={() => setNewOpen(false)} />}
     </div>
+  );
+}
+
+// ───────────── دیالوگ ثبت اقدام جدید (دبیرخانه) ─────────────
+const toEnDigits = (s: string) =>
+  s.replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d))).replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)));
+
+function NewActionDialog({ data, onClose }: { data: { actions: ActionRow[] } | null; onClose: () => void }) {
+  const qc = useQueryClient();
+  const hasPerm = useAppStore((s) => s.hasPerm);
+  const [form, setForm] = useState({
+    title: "", description: "", groupKey: "CONTINUOUS", actionType: "ROUTINE", priority: "MEDIUM",
+    cycleKey: "", dueStartDay: "", dueEndDay: "", deliverable: "", sourceRef: "",
+    responsibleUnitId: "", followUpOwnerId: "",
+  });
+  const [deps, setDeps] = useState<number[]>([]);
+
+  const set = (k: keyof typeof form) => (v: string) => setForm((f) => ({ ...f, [k]: v }));
+
+  const { data: unitsData } = useQuery<{ units: { id: string; name: string; type: string; parent?: { name: string } | null }[] }>({
+    queryKey: ["org-units"],
+    queryFn: () => api.get("/api/org-units"),
+  });
+  const { data: usersData } = useQuery<{ users: { id: string; fullName: string; orgUnit?: { name: string } | null }[] }>({
+    queryKey: ["users"],
+    queryFn: () => api.get("/api/users"),
+    enabled: hasPerm("users:view"),
+  });
+
+  const create = useMutation({
+    mutationFn: (body: Record<string, unknown>) => api.post("/api/actions", body),
+    onSuccess: () => {
+      toast({ title: "اقدام جدید ثبت شد", description: "وضعیت اولیه: پیش‌نویس — کد گام به‌صورت خودکار تخصیص یافت." });
+      qc.invalidateQueries({ queryKey: ["actions"] });
+      qc.invalidateQueries({ queryKey: ["overview"] });
+      qc.invalidateQueries({ queryKey: ["dashboard"] });
+      onClose();
+    },
+    onError: (e) => toast({ title: "خطا در ثبت اقدام", description: e instanceof ApiClientError ? e.message : "خطای نامشخص", variant: "destructive" }),
+  });
+
+  const dueStart = form.dueStartDay.trim() ? Number(toEnDigits(form.dueStartDay)) : null;
+  const dueEnd = form.dueEndDay.trim() ? Number(toEnDigits(form.dueEndDay)) : null;
+  const invalidDays = (dueStart != null && Number.isNaN(dueStart)) || (dueEnd != null && Number.isNaN(dueEnd)) || (dueStart != null && dueEnd != null && dueEnd < dueStart);
+  const canSubmit = !!form.title.trim() && !invalidDays && !create.isPending;
+
+  const submit = () => {
+    if (!canSubmit) return;
+    create.mutate({
+      title: form.title.trim(),
+      description: form.description.trim(),
+      groupKey: form.groupKey,
+      actionType: form.actionType,
+      priority: form.priority,
+      cycleKey: form.cycleKey || null,
+      dueStartDay: dueStart,
+      dueEndDay: dueEnd,
+      deliverable: form.deliverable.trim() || null,
+      sourceRef: form.sourceRef.trim() || null,
+      responsibleUnitId: form.responsibleUnitId || null,
+      followUpOwnerId: form.followUpOwnerId || null,
+      dependencies: deps,
+    });
+  };
+
+  return (
+    <Dialog open onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-2xl max-h-[90vh] p-0">
+        <DialogHeader className="p-6 pb-2">
+          <DialogTitle className="text-base">ثبت اقدام جدید</DialogTitle>
+          <DialogDescription className="leading-6">
+            اقدام پس از ثبت در وضعیت «پیش‌نویس» قرار می‌گیرد؛ شماره گام و کد به‌صورت خودکار تخصیص می‌یابد و مهلت نسبی از تاریخ ابلاغ محاسبه می‌شود.
+          </DialogDescription>
+        </DialogHeader>
+        <ScrollArea className="max-h-[calc(90vh-190px)] px-6 pb-2">
+          <div className="space-y-4 pb-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="na-title">عنوان اقدام <span className="text-rose-600">*</span></Label>
+              <Input id="na-title" value={form.title} onChange={(e) => set("title")(e.target.value)} placeholder="مثال: تدوین سند معماری داده سازمانی" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="na-desc">شرح اقدام</Label>
+              <Textarea id="na-desc" value={form.description} onChange={(e) => set("description")(e.target.value)} rows={2} placeholder="شرح کوتاه دامنه و انتظار اقدام…" />
+            </div>
+            <div className="grid sm:grid-cols-3 gap-3">
+              <div className="space-y-1.5">
+                <Label>گروه زمانی</Label>
+                <Select value={form.groupKey} onValueChange={set("groupKey")}>
+                  <SelectTrigger className="bg-card"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {ACTION_GROUPS.map((g) => (<SelectItem key={g.key} value={g.key}>{g.label}</SelectItem>))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label>نوع اقدام</Label>
+                <Select value={form.actionType} onValueChange={set("actionType")}>
+                  <SelectTrigger className="bg-card"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(ACTION_TYPES).map(([k, v]) => (<SelectItem key={k} value={k}>{v}</SelectItem>))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label>اولویت</Label>
+                <Select value={form.priority} onValueChange={set("priority")}>
+                  <SelectTrigger className="bg-card"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(PRIORITIES).map(([k, v]) => (<SelectItem key={k} value={k}>{v.label}</SelectItem>))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid sm:grid-cols-3 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="na-ds">شروع بازه مهلت (روز از ابلاغ)</Label>
+                <Input id="na-ds" dir="ltr" value={form.dueStartDay} onChange={(e) => set("dueStartDay")(e.target.value)} placeholder="مثال: 15" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="na-de">پایان بازه مهلت (سررسید)</Label>
+                <Input id="na-de" dir="ltr" value={form.dueEndDay} onChange={(e) => set("dueEndDay")(e.target.value)} placeholder="مثال: 60" />
+              </div>
+              <div className="space-y-1.5">
+                <Label>چرخه (اقدامات مستمر)</Label>
+                <Select value={form.cycleKey || "none"} onValueChange={(v) => set("cycleKey")(v === "none" ? "" : v)}>
+                  <SelectTrigger className="bg-card"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">بدون چرخه</SelectItem>
+                    {Object.entries(CYCLES).map(([k, v]) => (<SelectItem key={k} value={k}>{v}</SelectItem>))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            {invalidDays && (
+              <div className="text-xs text-rose-600">پایان بازه مهلت نمی‌تواند پیش از شروع آن باشد و مقادیر باید عددی باشند.</div>
+            )}
+            <div className="grid sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="na-del">خروجی قابل تحویل</Label>
+                <Input id="na-del" value={form.deliverable} onChange={(e) => set("deliverable")(e.target.value)} placeholder="مثال: سند مصوب معماری داده" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="na-src">منبع / ارجاع (اختیاری)</Label>
+                <Input id="na-src" value={form.sourceRef} onChange={(e) => set("sourceRef")(e.target.value)} placeholder="مثال: مصوبه جلسه ۳ — بند ۲" />
+              </div>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label>واحد مسئول</Label>
+                <Select value={form.responsibleUnitId || "none"} onValueChange={(v) => set("responsibleUnitId")(v === "none" ? "" : v)}>
+                  <SelectTrigger className="bg-card"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">دبیرخانه (بدون واحد)</SelectItem>
+                    {(unitsData?.units ?? []).map((u) => (
+                      <SelectItem key={u.id} value={u.id}>{u.name}{u.parent?.name ? ` — ${u.parent.name}` : ""}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {hasPerm("users:view") && (
+                <div className="space-y-1.5">
+                  <Label>مسئول پیگیری</Label>
+                  <Select value={form.followUpOwnerId || "none"} onValueChange={(v) => set("followUpOwnerId")(v === "none" ? "" : v)}>
+                    <SelectTrigger className="bg-card"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">تعیین نشده</SelectItem>
+                      {(usersData?.users ?? []).map((u) => (
+                        <SelectItem key={u.id} value={u.id}>{u.fullName}{u.orgUnit?.name ? ` — ${u.orgUnit.name}` : ""}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+            {(data?.actions ?? []).length > 0 && (
+              <div className="space-y-1.5">
+                <Label>وابستگی‌ها (اقدامات پیش‌نیاز — ترتیب الزامی)</Label>
+                <div className="max-h-36 overflow-y-auto rounded-lg border p-2 flex flex-wrap gap-1.5 bg-card">
+                  {data!.actions.map((a) => {
+                    const on = deps.includes(a.refStep);
+                    return (
+                      <button
+                        key={a.id}
+                        type="button"
+                        onClick={() => setDeps((d) => (on ? d.filter((x) => x !== a.refStep) : [...d, a.refStep].sort((x, y) => x - y)))}
+                        className={`rounded-md border px-2 py-1 text-[11px] transition-colors ${on ? "border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 font-medium" : "hover:border-emerald-600/40"}`}
+                      >
+                        گام {faNum(a.refStep)} · {a.title.slice(0, 30)}
+                      </button>
+                    );
+                  })}
+                </div>
+                {deps.length > 0 && <div className="text-[11px] text-muted-foreground">وابسته به گام {faNum(deps.join("، "))} — تا تکمیل این گام‌ها، اقدام قابل شروع نیست.</div>}
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+        <DialogFooter className="p-4 pt-2 border-t">
+          <Button variant="outline" size="sm" onClick={onClose} disabled={create.isPending}>انصراف</Button>
+          <Button size="sm" disabled={!canSubmit} onClick={submit}>{create.isPending ? "در حال ثبت…" : "ثبت اقدام"}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

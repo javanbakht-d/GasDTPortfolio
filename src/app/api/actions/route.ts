@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { requireAuth, requirePermission, json, handleApiError, audit, fail, actionScopeFilter } from "@/lib/api";
 import { getBaselineDate, dueFromDay, programDay } from "@/lib/persian-date";
+import { CYCLES } from "@/lib/constants";
 
 /** لیست اقدامات — محدود به واحد سازمانی/اقدامات محول‌شده کاربر (نقش‌های دبیرخانه: کل برنامه) */
 export async function GET(req: NextRequest) {
@@ -55,6 +56,9 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const title = String(body.title ?? "").trim();
     if (!title) return fail(400, "عنوان اقدام الزامی است.", "BAD_INPUT");
+    const cycleKey = body.cycleKey ? String(body.cycleKey) : null;
+    if (cycleKey && !Object.keys(CYCLES).includes(cycleKey)) return fail(400, "چرخه انتخابی نامعتبر است.", "BAD_INPUT");
+    const deps = Array.isArray(body.dependencies) ? body.dependencies.map((x: unknown) => Number(x)).filter((n: number) => Number.isInteger(n) && n > 0) : [];
 
     const baseline = await getBaselineDate();
     const count = await db.action.count();
@@ -73,7 +77,8 @@ export async function POST(req: NextRequest) {
         dueEndDay,
         dueDate: dueEndDay != null ? dueFromDay(baseline, dueEndDay) : body.dueDate ? new Date(body.dueDate) : null,
         deliverable: body.deliverable ?? null,
-        dependencies: Array.isArray(body.dependencies) ? JSON.stringify(body.dependencies) : body.dependencies ?? null,
+        dependencies: deps.length ? JSON.stringify(deps) : null,
+        cycleKey,
         responsibleUnitId: body.responsibleUnitId ?? null,
         followUpOwnerId: body.followUpOwnerId ?? null,
         priority: body.priority ?? "MEDIUM",
